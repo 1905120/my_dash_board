@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage UTP</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav/nav.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='manage_utp/manage-utp.css') }}" />
+</head>
+<body>
+
+  <!-- Navigation Component -->
+  <div id="nav-container" data-logo="Manage UTP"></div>
+
+  <main class="content">
+    <div class="page-header">
+      <h1>🛠️ Manage UTP</h1>
+      <button id="themeToggleBtn" title="Toggle Theme">🌙</button>
+    </div>
+
+    <div class="utp-container">
+      <!-- Value Input Section (Combo: Dropdown + Editable) -->
+      <div class="input-section">
+        <label for="valueSelect">Enter Value</label>
+        <div class="combo-input">
+          <select id="valueSelect">
+            <option value="">-- Select or type below --</option>
+          </select>
+          <input type="text" id="utpInput" placeholder="Or type custom value..." />
+        </div>
+      </div>
+
+      <!-- Operation Dropdown Section -->
+      <div class="dropdown-section">
+        <label for="operationSelect">Select Operation</label>
+        <select id="operationSelect">
+          <option value="">-- Select an Operation --</option>
+        </select>
+      </div>
+
+      <!-- Selected Deployment Display (shown when Manage Deployments is selected) -->
+      <div id="selectedDeployment" class="selected-deployment hidden">
+        <label>Selected Deployment</label>
+        <div class="deployment-badge">
+          <span id="deploymentName">None</span>
+          <button id="changeDeploymentBtn" class="change-btn">Change</button>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="submit-section">
+        <button id="submitBtn" class="submit-btn" disabled>Submit</button>
+      </div>
+
+      <!-- Result Section -->
+      <div id="resultSection" class="result-section hidden">
+        <h3>Result</h3>
+        <pre id="resultOutput"></pre>
+      </div>
+    </div>
+  </main>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Your request is being processed...</div>
+      <div class="loading-subtext">Please wait</div>
+    </div>
+  </div>
+
+  <!-- Deployment Selection Popup -->
+  <div id="deploymentPopup" class="popup hidden">
+    <div class="popup-content">
+      <h3>🚀 Select Deployment Option</h3>
+      <div id="deploymentOptions" class="deployment-options"></div>
+      <div class="popup-actions">
+        <button id="cancelDeploymentBtn" class="secondary-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='nav/nav.js') }}"></script>
+  <script src="{{ url_for('static', filename='manage_utp/manage-utp.js') }}"></script>
+</body>
+</html>

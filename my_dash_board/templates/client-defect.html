@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Defect Manager</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav/nav.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CD_manager/client-defect.css') }}" />
+</head>
+<body>
+
+  <!-- Navigation Component - just add this div -->
+  <div id="nav-container" data-logo="CD Manager"></div>
+
+  <main class="content">
+  <div class="header-actions" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <button id="themeToggleBtn" title="Toggle Theme">🌙</button>
+      <select id="viewSelector">
+        <option value="current" selected>Current</option>
+        <option value="archived">Archived</option>
+      </select>
+      <button class="deleteDefectBtn hidden">Delete Defect</button>
+      <button class="archiveDefectBtn hidden">Archive Defect</button>
+      <button class="moveCurrentBtn hidden">Move Current</button>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <button id="createDefectBtn">Create Defect</button>
+      <button id="amendDefectBtn">Amend Defect</button>
+      <button class="cancenlAmend hidden">Cancel</button>
+    </div>
+  </div>
+
+  <div id="defectListContainer">
+
+    <table id="defectTable">
+    <colgroup>
+      <col class="row-select hidden" style="width: 0;">
+      <col style="width: 30%;">
+      <col style="width: 50%;">
+      <col style="width: 20%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="row-select hidden"></th>
+        <th class="col-id">Defect ID</th>
+        <th class="col-status">Status</th>
+        <th class="col-action"></th>
+      </tr>
+    </thead>
+    <tbody id="defectBody"></tbody>
+  </table>
+
+  </div>
+  
+  <!-- CREATE DEFECT POPUP -->
+<div id="defectPopup" class="popup hidden">
+  <div class="popup-content">
+    <h3>Create Defect</h3>
+
+    <div class="detail-table">
+      <div class="detail-row"><span>Defect ID</span><input id="cd_id"></div>
+      <div class="detail-row"><span>Client Name</span><input id="client_name"></div>
+      <div class="detail-row">
+        <span>Status</span>
+        <select id="status">
+          <option>new</option>
+          <option>analysis</option>
+          <option>coding</option>
+          <option>code review</option>
+          <option>testing</option>
+          <option>regression</option>
+          <option>secondary</option>
+          <option>rejected</option>
+          <option>completed</option>
+        </select>
+      </div>
+      <div class="detail-row"><span>Time Spent</span><input id="time_spent"></div>
+      <div class="detail-row"><span>Release</span><input id="release"></div>
+      <div class="detail-row"><span>Comments</span><input id="comments"></div>
+      <div class="detail-row hidden"><span>Today Plan</span><input id="today_plan"></div>
+      <div class="detail-row hidden"><span>Missed Plan</span><input id="missed_plan"></div>
+    </div>
+
+    <div class="popup-actions">
+      <button id="saveDefectBtn" class="primary-btn">Save</button>
+      <button id="cancelDefectBtn" class="secondary-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+</main>
+  <script src="{{ url_for('static', filename='nav/nav.js') }}"></script>
+  <script src="{{ url_for('static', filename='CD_manager/client-defect.js') }}"></script>
+</body>
+</html>

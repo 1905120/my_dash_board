@@ -1,0 +1,20 @@
+[
+  {
+    "defect_id": "D-1001",
+    "status": "working",
+    "todays_plan": "Investigate stack trace, reproduce locally",
+    "missed_plan": "N/A",
+    "spent_time": "2h 15m",
+    "comments": "Possible race condition in pipeline",
+    "log": "C:/projects/logs/D-1001"
+  },
+  {
+    "defect_id": "D-1002",
+    "status": "archived",
+    "todays_plan": "--",
+    "missed_plan": "--",
+    "spent_time": "5h 30m",
+    "comments": "Fixed in v1.2.0",
+    "log": "C:/projects/logs/D-1002"
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "deployments": [
+    { "id": "1", "name": "To use New Browser (can use API , Old Browser)", "description": "" },
+    { "id": "2", "name":  "To Use only API (Can Old Browser)", "description": "" },
+    { "id": "3", "name": "To Use Old Browser", "description": ""}
+    ]
+}

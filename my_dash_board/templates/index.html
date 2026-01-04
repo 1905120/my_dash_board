@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav/nav.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='main_dash_board/styles.css') }}" />
+</head>
+<body>
+
+  <!-- Navigation Component - just add this div -->
+  <div id="nav-container" data-logo="My Dashboard"></div>
+
+  <main id="content" class="content">
+    <div class="hero-section">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">Welcome</h1>
+        <p class="hero-quote">"MISTER LEADER OF THE FREE GALAXY"</p>
+        <p class="hero-subtitle">Select a menu from the sidebar</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='nav/nav.js') }}"></script>
+</body>
+</html>

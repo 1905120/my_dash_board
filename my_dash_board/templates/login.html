@@ -1,0 +1,851 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Jira</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav/nav.css') }}" />
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container { position: fixed; top: 20px; right: 20px; }
+        .login-btn {
+            display: none;
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+        .login-btn.visible { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .center-content { text-align: center; color: white; display: flex; flex-direction: column; align-items: center; }
+        .center-content h1 {
+            font-size: 48px;
+            margin: 0 0 16px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .center-content p { color: #94a3b8; font-size: 18px; margin: 0 0 30px; }
+        .loading-indicator { position: fixed; top: 20px; right: 20px; color: #94a3b8; font-size: 14px; }
+        .action-dropdown {
+            display: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #eaeaea;
+            background: #1e293b;
+            border: 2px solid #4a5568;
+            border-radius: 10px;
+            cursor: pointer;
+            min-width: 200px;
+            margin-right: 12px;
+        }
+        .action-dropdown:focus { outline: none; border-color: #6366f1; }
+        .action-dropdown.visible { display: inline-block; animation: fadeIn 0.5s ease; }
+        .action-dropdown option { background: #1e293b; color: #eaeaea; padding: 10px; }
+        .controls-container { display: flex; align-items: center; gap: 12px; }
+    
+    /* Jira Input Panel */
+        .jira-panel {
+            background: linear-gradient(145deg, #1e293b, #16213e);
+            border: 2px solid #4a5568;
+            border-radius: 16px;
+            padding: 24px;
+            width: 400px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .jira-panel.visible { display: block; }
+        .jira-panel h3 { margin: 0 0 16px; color: #60a5fa; font-size: 18px; }
+        .jira-panel label { display: block; color: #94a3b8; font-size: 14px; margin-bottom: 8px; }
+        .jira-panel input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            color: #eaeaea;
+            background: #0f172a;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .jira-panel input:focus { outline: none; border-color: #6366f1; }
+        .jira-note {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            border-left: 4px solid #f59e0b;
+        }
+        .jira-secondary-btn, .panel-actions .action-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #eaeaea;
+            background: #334155;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .jira-secondary-btn:hover, .panel-actions .action-btn:hover {
+            background: #475569;
+            transform: translateY(-1px);
+        }
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .jira-submit-btn {
+            width: 100%;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .jira-submit-btn:hover { background: linear-gradient(135deg, #16a34a, #15803d); transform: translateY(-2px); }
+        .jira-submit-btn:disabled { background: #4a5568; cursor: not-allowed; transform: none; }
+        /* Hierarchy Display */
+        .hierarchy-panel {
+            background: linear-gradient(145deg, #1e293b, #16213e);
+            border: 2px solid #4a5568;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 50vh;
+            overflow-y: auto;
+            display: none;
+            margin-top: 20px;
+        }
+        .hierarchy-panel.visible { display: block; animation: fadeIn 0.4s ease; }
+        .hierarchy-panel h3 { margin: 0 0 16px; color: #a78bfa; font-size: 18px; }
+        .hierarchy-tree { color: #eaeaea; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.8; }
+        .hierarchy-item { padding: 8px 12px; background: #0f172a; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #6366f1; }
+        .hierarchy-item.epic { border-left-color: #f59e0b; }
+        .hierarchy-item.story { border-left-color: #22c55e; margin-left: 20px; }
+        .hierarchy-item.task { border-left-color: #3b82f6; margin-left: 40px; }
+        .loading-spinner { color: #60a5fa; text-align: center; padding: 20px; }
+ 
+       /* Bitbucket Panel */
+        .bitbucket-panel {
+            background: linear-gradient(145deg, #1e293b, #16213e);
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 24px;
+            width: 400px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .bitbucket-panel.visible { display: block; }
+        .bitbucket-panel h3 { margin: 0 0 16px; color: #3b82f6; font-size: 18px; }
+        .bitbucket-panel label { display: block; color: #94a3b8; font-size: 14px; margin-bottom: 8px; }
+        .bitbucket-panel .multi-select {
+            width: 100%;
+            min-height: 120px;
+            padding: 8px;
+            font-size: 14px;
+            color: #eaeaea;
+            background: #0f172a;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .bitbucket-panel .multi-select:focus { outline: none; border-color: #3b82f6; }
+        .bitbucket-panel .multi-select option { padding: 8px; margin: 2px 0; border-radius: 4px; }
+        .bitbucket-panel .multi-select option:checked { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .bitbucket-panel input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            color: #eaeaea;
+            background: #0f172a;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .bitbucket-panel input:focus { outline: none; border-color: #3b82f6; }
+        .bitbucket-submit-btn {
+            width: 100%;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .bitbucket-submit-btn:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-2px); }
+        .bitbucket-submit-btn:disabled { background: #4a5568; cursor: not-allowed; transform: none; }
+        /* Bitbucket Results */
+        .bitbucket-results {
+            background: linear-gradient(145deg, #1e293b, #16213e);
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+        .bitbucket-results.visible { display: block; }
+        .bitbucket-results h3 { margin: 0 0 16px; color: #3b82f6; font-size: 18px; }
+        .bitbucket-results select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            color: #eaeaea;
+            background: #0f172a;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+        }
+        .bitbucket-results select:focus { outline: none; border-color: #3b82f6; }
+        .bitbucket-results select option { background: #0f172a; color: #eaeaea; }
+   
+     /* Full Screen Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        .loading-overlay.visible { display: flex; animation: fadeIn 0.3s ease; }
+        .loading-spinner-large {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #1e293b;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { color: #60a5fa; font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+        .loading-subtext { color: #94a3b8; font-size: 14px; }
+        .loading-dots { display: inline-block; }
+        .loading-dots::after { content: ''; animation: dots 1.5s steps(4, end) infinite; }
+        @keyframes dots { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
+        /* Login Popup */
+        .login-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+        }
+        .login-popup-overlay.visible { display: flex; animation: fadeIn 0.3s ease; }
+        .login-popup {
+            background: linear-gradient(145deg, #1e293b, #16213e);
+            border: 2px solid #6366f1;
+            border-radius: 20px;
+            padding: 32px;
+            width: 380px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        .login-popup h2 { color: #60a5fa; margin: 0 0 8px; font-size: 24px; }
+        .login-popup-subtitle { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+        .login-popup label { display: block; color: #94a3b8; font-size: 14px; text-align: left; margin-bottom: 6px; }
+        .login-popup input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            color: #eaeaea;
+            background: #0f172a;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .login-popup input:focus { outline: none; border-color: #6366f1; }
+        .login-popup-btn {
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+        .login-popup-btn:hover { background: linear-gradient(135deg, #4f46e5, #4338ca); transform: translateY(-2px); }
+        .login-popup-cancel {
+            width: 100%;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #94a3b8;
+            background: transparent;
+            border: 1px solid #4a5568;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 12px;
+        }
+        .login-popup-cancel:hover { background: #1e293b; color: #eaeaea; }
+        .login-error { color: #f87171; font-size: 13px; margin-top: -8px; margin-bottom: 12px; display: none; }
+        .login-error.visible { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Navigation Component - just add this div -->
+    <div id="nav-container" data-logo="Online Jira"></div>
+    
+<!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner-large"></div>
+        <div class="loading-text" id="loadingText">Processing<span class="loading-dots"></span></div>
+        <div class="loading-subtext" id="loadingSubtext">Please wait while we fetch your data</div>
+    </div>
+
+    <!-- Login Popup -->
+    <div class="login-popup-overlay" id="loginPopupOverlay">
+        <div class="login-popup">
+            <h2>🔐 Login</h2>
+            <p class="login-popup-subtitle">Enter your credentials to continue</p>
+            <label for="loginUsername">Username</label>
+            <input type="text" id="loginUsername" placeholder="Enter username">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter password">
+            <div class="login-error" id="loginError">Invalid username or password</div>
+            <button class="login-popup-btn" onclick="submitLogin()">Login</button>
+            <button class="login-popup-cancel" onclick="closeLoginPopup()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <span class="loading-indicator" id="loadingIndicator">Checking...</span>
+        <div class="controls-container">
+            <select class="action-dropdown" id="actionDropdown" onchange="handleActionChange()">
+                <option value="">-- Select Action --</option>
+            </select>
+            <button class="login-btn" id="loginBtn" onclick="handleLogin()">Login</button>
+        </div>
+    </div>
+
+    <div class="center-content">
+        <h1 id="welcomeTitle">Online Jira</h1>
+        <p id="welcomeText">Please wait while we verify your access</p>
+
+        <!-- Jira Input Panel -->
+        <div class="jira-panel" id="jiraPanel">
+            <h3>🔍 Jira Epic Lookup</h3>
+            <label for="jiraIdInput">Enter Jira ID</label>
+            <input type="text" id="jiraIdInput" placeholder="e.g., PROJ-1234">
+            <div class="jira-note">⚠️ <strong>Note:</strong> Can only process Epic hierarchy.</div>
+            <button class="jira-submit-btn" id="jiraSubmitBtn" onclick="submitJiraRequest()">Submit</button>
+            <div class="jira-action-btns" style="display: flex; gap: 10px; margin-top: 12px;">
+                <button class="jira-secondary-btn" onclick="openCredentialsPopup()">🔑 Credentials</button>
+                <button class="jira-secondary-btn" onclick="clearJiraCache()">🗑️ Clear Cache</button>
+            </div>
+        </div>
+
+        <!-- Hierarchy Display Panel -->
+        <div class="hierarchy-panel" id="hierarchyPanel">
+            <h3>📊 Epic Hierarchy</h3>
+            <div class="hierarchy-tree" id="hierarchyTree"></div>
+        </div>
+
+        <!-- Bitbucket Input Panel -->
+        <div class="bitbucket-panel" id="bitbucketPanel">
+            <h3>🔗 Bitbucket Lookup</h3>
+            <div class="panel-actions">
+                <button class="action-btn credentials-btn" onclick="openBitbucketCredentials()">🔑 Credentials</button>
+                <button class="action-btn clear-btn" onclick="clearBitbucketCache()">🗑️ Clear Cache</button>
+            </div>
+            <label for="projectSelect">Select Projects</label>
+            <select id="projectSelect" multiple class="multi-select">
+            </select>
+            <label for="repoSelect" style="margin-top: 16px;">Select Repositories</label>
+            <select id="repoSelect" multiple class="multi-select">
+            </select>
+            <button class="bitbucket-submit-btn" id="bitbucketSubmitBtn" onclick="submitBitbucketRequest()">Submit</button>
+        </div>
+
+        <!-- Bitbucket Results Panel -->
+        <div class="bitbucket-results" id="bitbucketResults">
+            <h3>📋 Select Tags</h3>
+            <label for="fromTagDropdown">From Tag:</label>
+            <select id="fromTagDropdown"><option value="">-- Select From Tag --</option></select>
+            <label for="toTagDropdown" style="margin-top: 16px;">To Tag:</label>
+            <select id="toTagDropdown"><option value="">-- Select To Tag --</option></select>
+            <button class="bitbucket-submit-btn" id="bitbucketResultSubmitBtn" onclick="submitBitbucketSelection()" style="margin-top: 16px;">Submit Selection</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='nav/nav.js') }}"></script>
+    <script>
+ 
+       // Load Bitbucket options on page load
+       async function loadBitbucketOptions() {
+         try {
+           const response = await fetch('/api/online-jira/bitbucket/options');
+           const data = await response.json();
+           
+           if (response.ok) {
+             const projectSelect = document.getElementById('projectSelect');
+             const repoSelect = document.getElementById('repoSelect');
+             
+             // Populate projects
+             if (data.projects) {
+               projectSelect.innerHTML = '';
+               data.projects.forEach(proj => {
+                 const option = document.createElement('option');
+                 option.value = proj.value;
+                 option.textContent = proj.label;
+                 projectSelect.appendChild(option);
+               });
+             }
+             
+             // Populate repos
+             if (data.repos) {
+               repoSelect.innerHTML = '';
+               data.repos.forEach(repo => {
+                 const option = document.createElement('option');
+                 option.value = repo.value;
+                 option.textContent = repo.label;
+                 repoSelect.appendChild(option);
+               });
+             }
+           }
+         } catch (err) {
+           console.error('Error loading Bitbucket options:', err);
+         }
+       }
+
+       async function checkLoginStatus() {
+            const loginBtn = document.getElementById('loginBtn');
+            const actionDropdown = document.getElementById('actionDropdown');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            try {
+                const response = await fetch('/api/online-jira/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                loadingIndicator.style.display = 'none';
+                if (response.status === 200) {
+                    loginBtn.classList.add('visible');
+                    actionDropdown.classList.remove('visible');
+                } else {
+                    loginBtn.classList.remove('visible');
+                    actionDropdown.classList.remove('visible');
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+                loadingIndicator.textContent = 'Connection error';
+                loginBtn.classList.remove('visible');
+                actionDropdown.classList.remove('visible');
+            }
+        }
+
+        async function loadActionOptions() {
+            const actionDropdown = document.getElementById('actionDropdown');
+            try {
+                const response = await fetch('/api/online-jira/actions', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    actionDropdown.innerHTML = '<option value="">-- Select Action --</option>';
+                    if (data.actions && data.actions.length > 0) {
+                        data.actions.forEach(action => {
+                            const option = document.createElement('option');
+                            option.value = action;
+                            option.textContent = action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            actionDropdown.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading actions:', error);
+            }
+        }
+
+        function handleActionChange() {
+            const actionDropdown = document.getElementById('actionDropdown');
+            const selectedAction = actionDropdown.value;
+            const jiraPanel = document.getElementById('jiraPanel');
+            const hierarchyPanel = document.getElementById('hierarchyPanel');
+            const bitbucketPanel = document.getElementById('bitbucketPanel');
+            const bitbucketResults = document.getElementById('bitbucketResults');
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const welcomeText = document.getElementById('welcomeText');
+            
+            hierarchyPanel.classList.remove('visible');
+            bitbucketResults.classList.remove('visible');
+            
+            if (selectedAction === 'get_jira_details') {
+                jiraPanel.classList.add('visible');
+                bitbucketPanel.classList.remove('visible');
+                welcomeTitle.style.display = 'none';
+                welcomeText.style.display = 'none';
+            } else if (selectedAction === 'get_bitbucket_details') {
+                bitbucketPanel.classList.add('visible');
+                jiraPanel.classList.remove('visible');
+                welcomeTitle.style.display = 'none';
+                welcomeText.style.display = 'none';
+                // Load Bitbucket options
+                loadBitbucketOptions();
+            } else if (selectedAction) {
+                jiraPanel.classList.remove('visible');
+                bitbucketPanel.classList.remove('visible');
+                welcomeTitle.style.display = 'none';
+                welcomeText.style.display = 'none';
+            } else {
+                jiraPanel.classList.remove('visible');
+                bitbucketPanel.classList.remove('visible');
+                welcomeTitle.style.display = 'block';
+                welcomeText.style.display = 'block';
+            }
+        }
+       
+ async function submitJiraRequest() {
+            const jiraId = document.getElementById('jiraIdInput').value.trim();
+            const submitBtn = document.getElementById('jiraSubmitBtn');
+            const hierarchyPanel = document.getElementById('hierarchyPanel');
+            const hierarchyTree = document.getElementById('hierarchyTree');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            const loadingSubtext = document.getElementById('loadingSubtext');
+            
+            if (!jiraId) { alert('Please enter a Jira ID'); return; }
+            
+            loadingText.innerHTML = 'Fetching Jira Hierarchy<span class="loading-dots"></span>';
+            loadingSubtext.textContent = 'Please wait while we process ' + jiraId;
+            loadingOverlay.classList.add('visible');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            
+            try {
+                const hierarchyResponse = await fetch('/api/online-jira/hierarchy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify([{ jira_id: jiraId }])
+                });
+                hierarchyPanel.classList.add('visible');
+                if (hierarchyResponse.ok) {
+                    const hierarchyData = await hierarchyResponse.json();
+                    console.log('Hierarchy response:', hierarchyData);
+                    displayHierarchy(hierarchyData);
+                    
+                    // Download files using the download_url from response
+                    const files = hierarchyData.list_of_file_dir || [];
+                    console.log('Files to download:', files);
+                    
+                    if (files.length > 0) {
+                        loadingSubtext.textContent = 'Downloading files...';
+                        for (const file of files) {
+                            console.log('Downloading:', file.download_url);
+                            const fileResponse = await fetch(file.download_url);
+                            console.log('Download response status:', fileResponse.status);
+                            if (fileResponse.ok) {
+                                const blob = await fileResponse.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = file.file_name;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                window.URL.revokeObjectURL(url);
+                                // Small delay between downloads to avoid browser blocking
+                                await new Promise(resolve => setTimeout(resolve, 300));
+                            }
+                        }
+                    } else {
+                        console.log('No files to download');
+                    }
+                    resetToWelcome();
+                } else {
+                    hierarchyTree.innerHTML = '<div style="color: #f87171;">❌ Failed to load hierarchy</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                hierarchyTree.innerHTML = '<div style="color: #f87171;">❌ Error processing request</div>';
+            } finally {
+                loadingOverlay.classList.remove('visible');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
+        }
+
+        function displayHierarchy(data) {
+            const hierarchyTree = document.getElementById('hierarchyTree');
+            if (!data || !data.hierarchy) {
+                hierarchyTree.innerHTML = '<div style="color: #94a3b8;">No hierarchy data found</div>';
+                return;
+            }
+            let html = '';
+            const hierarchy = data.hierarchy;
+            if (hierarchy.epic) {
+                html += `<div class="hierarchy-item epic"><strong>🟡 Epic:</strong> ${hierarchy.epic.key} - ${hierarchy.epic.summary || ''}</div>`;
+            }
+            if (hierarchy.stories && hierarchy.stories.length > 0) {
+                hierarchy.stories.forEach(story => {
+                    html += `<div class="hierarchy-item story"><strong>🟢 Story:</strong> ${story.key} - ${story.summary || ''}</div>`;
+                    if (story.tasks && story.tasks.length > 0) {
+                        story.tasks.forEach(task => {
+                            html += `<div class="hierarchy-item task"><strong>🔵 Task:</strong> ${task.key} - ${task.summary || ''}</div>`;
+                        });
+                    }
+                });
+            }
+            hierarchyTree.innerHTML = html || '<div style="color: #94a3b8;">No items in hierarchy</div>';
+        }
+   
+     function handleLogin() {
+            document.getElementById('loginPopupOverlay').classList.add('visible');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').classList.remove('visible');
+            document.getElementById('loginUsername').focus();
+        }
+
+        function closeLoginPopup() {
+            document.getElementById('loginPopupOverlay').classList.remove('visible');
+        }
+
+        function submitLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorEl = document.getElementById('loginError');
+            
+            if (username === '12345' && password === '12345') {
+                closeLoginPopup();
+                document.getElementById('loginBtn').classList.remove('visible');
+                document.getElementById('actionDropdown').classList.add('visible');
+                loadActionOptions();
+                document.getElementById('welcomeText').textContent = 'Select an action from the dropdown above';
+            } else {
+                errorEl.classList.add('visible');
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.getElementById('loginPopupOverlay').classList.contains('visible')) {
+                submitLogin();
+            }
+        });
+
+        function resetToWelcome() {
+            document.getElementById('actionDropdown').value = '';
+            document.getElementById('jiraPanel').classList.remove('visible');
+            document.getElementById('hierarchyPanel').classList.remove('visible');
+            document.getElementById('bitbucketPanel').classList.remove('visible');
+            document.getElementById('bitbucketResults').classList.remove('visible');
+            document.getElementById('welcomeTitle').style.display = 'block';
+            document.getElementById('welcomeText').style.display = 'block';
+            document.getElementById('jiraIdInput').value = '';
+            // Reset select elements if they exist
+            const projectSelect = document.getElementById('projectSelect');
+            const repoSelect = document.getElementById('repoSelect');
+            if (projectSelect) projectSelect.selectedIndex = -1;
+            if (repoSelect) repoSelect.selectedIndex = -1;
+        }
+
+        async function submitBitbucketRequest() {
+            const projectSelect = document.getElementById('projectSelect');
+            const repoSelect = document.getElementById('repoSelect');
+            const submitBtn = document.getElementById('bitbucketSubmitBtn');
+            const bitbucketPanel = document.getElementById('bitbucketPanel');
+            const bitbucketResults = document.getElementById('bitbucketResults');
+            const fromTagDropdown = document.getElementById('fromTagDropdown');
+            const toTagDropdown = document.getElementById('toTagDropdown');
+            
+            // Get selected values (multiple)
+            const selectedProjects = Array.from(projectSelect.selectedOptions).map(opt => opt.value);
+            const selectedRepos = Array.from(repoSelect.selectedOptions).map(opt => opt.value);
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            
+            try {
+                const response = await fetch('/api/online-jira/bitbucket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ repos: selectedRepos, projects: selectedProjects })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    fromTagDropdown.innerHTML = '<option value="">-- Select From Tag --</option>';
+                    toTagDropdown.innerHTML = '<option value="">-- Select To Tag --</option>';
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(item => {
+                            const option1 = document.createElement('option');
+                            option1.value = item;
+                            option1.textContent = item;
+                            fromTagDropdown.appendChild(option1);
+                            const option2 = document.createElement('option');
+                            option2.value = item;
+                            option2.textContent = item;
+                            toTagDropdown.appendChild(option2);
+                        });
+                    }
+                    bitbucketPanel.classList.remove('visible');
+                    bitbucketResults.classList.add('visible');
+                } else {
+                    alert('Failed to fetch Bitbucket data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error processing request');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
+        }
+    
+    async function submitBitbucketSelection() {
+            const fromTagDropdown = document.getElementById('fromTagDropdown');
+            const toTagDropdown = document.getElementById('toTagDropdown');
+            const fromTag = fromTagDropdown.value;
+            const toTag = toTagDropdown.value;
+            const submitBtn = document.getElementById('bitbucketResultSubmitBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            const loadingSubtext = document.getElementById('loadingSubtext');
+            const projectSelect = document.getElementById('projectSelect');
+            const repoSelect = document.getElementById('repoSelect');
+
+            // Get selected values (multiple)
+            const selectedProjects = Array.from(projectSelect.selectedOptions).map(opt => opt.value);
+            const selectedRepos = Array.from(repoSelect.selectedOptions).map(opt => opt.value);
+            
+            if (!fromTag || !toTag) { alert('Please select both From Tag and To Tag'); return; }
+            
+            loadingText.innerHTML = 'Comparing Tags<span class="loading-dots"></span>';
+            loadingSubtext.textContent = 'Comparing ' + fromTag + ' → ' + toTag;
+            loadingOverlay.classList.add('visible');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            
+            try {
+                const response = await fetch('/api/online-jira/bitbucket/compare', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ repos: selectedRepos, projects: selectedProjects, from_tag: fromTag, to_tag: toTag })
+                });
+                if (response.ok) {
+                    loadingSubtext.textContent = 'Downloading comparison file...';
+                    const data = await response.json();
+                    if (data.file_path) {
+                        const fileResponse = await fetch(data.file_path);
+                        if (fileResponse.ok) {
+                            const blob = await fileResponse.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = data.file_name || `${fromTag}_to_${toTag}_comparison.json`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                        }
+                    }
+                    resetToWelcome();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                loadingOverlay.classList.remove('visible');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Selection';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', checkLoginStatus);
+        // Jira Credentials Popup
+        function openCredentialsPopup() {
+            const popup = document.createElement('div');
+            popup.id = 'credentialsPopup';
+            popup.className = 'login-popup-overlay visible';
+            popup.innerHTML = '<div class="login-popup"><h2>Jira Credentials</h2><p class="login-popup-subtitle">Update your Jira credentials</p><label for="jiraUsername">Username</label><input type="text" id="jiraUsername" placeholder="Enter Jira username"><label for="jiraPassword">Password/Token</label><input type="password" id="jiraPassword" placeholder="Enter password or API token"><div class="login-error" id="credError"></div><button class="login-popup-btn" onclick="saveJiraCredentials()">Save</button><button class="login-popup-cancel" onclick="closeCredentialsPopup()">Cancel</button></div>';
+            document.body.appendChild(popup);
+        }
+        function closeCredentialsPopup() { const popup = document.getElementById('credentialsPopup'); if (popup) popup.remove(); }
+        async function saveJiraCredentials() {
+            const username = document.getElementById('jiraUsername').value.trim();
+            const password = document.getElementById('jiraPassword').value.trim();
+            if (!username || !password) { document.getElementById('credError').textContent = 'Both fields are required'; document.getElementById('credError').classList.add('visible'); return; }
+            try {
+                const response = await fetch('/api/online-jira/credentials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+                if (response.ok) { alert('Credentials saved successfully'); closeCredentialsPopup(); } else { const data = await response.json(); alert('Error: ' + (data.error || 'Failed to save credentials')); }
+            } catch (error) { console.error('Error:', error); alert('Error saving credentials'); }
+        }
+        async function clearJiraCache() {
+            if (!confirm('Are you sure you want to clear Jira cache?')) return;
+            try { const response = await fetch('/api/online-jira/clear-cache', { method: 'POST' }); if (response.ok) { alert('Jira cache cleared successfully'); } else { alert('Failed to clear cache'); } } catch (error) { console.error('Error:', error); alert('Error clearing cache'); }
+        }
+        // Bitbucket Credentials Popup
+        function openBitbucketCredentials() {
+            const popup = document.createElement('div');
+            popup.id = 'bbCredentialsPopup';
+            popup.className = 'login-popup-overlay visible';
+            popup.innerHTML = '<div class="login-popup"><h2>Bitbucket Credentials</h2><p class="login-popup-subtitle">Update your Bitbucket credentials</p><label for="bbUsername">Username</label><input type="text" id="bbUsername" placeholder="Enter Bitbucket username"><label for="bbPassword">Password/Token</label><input type="password" id="bbPassword" placeholder="Enter password or API token"><div class="login-error" id="bbCredError"></div><button class="login-popup-btn" onclick="saveBitbucketCredentials()">Save</button><button class="login-popup-cancel" onclick="closeBitbucketCredentialsPopup()">Cancel</button></div>';
+            document.body.appendChild(popup);
+        }
+        function closeBitbucketCredentialsPopup() { const popup = document.getElementById('bbCredentialsPopup'); if (popup) popup.remove(); }
+        async function saveBitbucketCredentials() {
+            const username = document.getElementById('bbUsername').value.trim();
+            const password = document.getElementById('bbPassword').value.trim();
+            if (!username || !password) { document.getElementById('bbCredError').textContent = 'Both fields are required'; document.getElementById('bbCredError').classList.add('visible'); return; }
+            try {
+                const response = await fetch('/api/online-jira/bitbucket/credentials', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+                if (response.ok) { alert('Credentials saved successfully'); closeBitbucketCredentialsPopup(); } else { const data = await response.json(); alert('Error: ' + (data.error || 'Failed to save credentials')); }
+            } catch (error) { console.error('Error:', error); alert('Error saving credentials'); }
+        }
+        async function clearBitbucketCache() {
+            if (!confirm('Are you sure you want to clear Bitbucket cache?')) return;
+            try { const response = await fetch('/api/online-jira/bitbucket/clear-cache', { method: 'POST' }); if (response.ok) { alert('Bitbucket cache cleared successfully'); } else { alert('Failed to clear cache'); } } catch (error) { console.error('Error:', error); alert('Error clearing cache'); }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+* {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #f5f5f7;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #f6f5f5;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(245, 243, 243, 0.1);
+        }
+        h1 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        #themeToggleBtn {
+            padding: 10px 16px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #94a3b8;
+            background-color: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #themeToggleBtn:hover {
+            background-color: #e2e8f0;
+        }
+        /* Note Section Styles */
+        .note-section {
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid #7dd3fc;
+            border-radius: 10px;
+        }
+       
+ .note-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .note-icon {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+        .note-toggle:hover .note-icon {
+            transform: scale(1.2);
+        }
+        .note-label {
+            font-weight: 600;
+            color: #0369a1;
+            font-size: 14px;
+        }
+        .note-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .note-input-container input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #7dd3fc;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        .note-input-container input:focus {
+            border-color: #0284c7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+        .btn-clear-note {
+            padding: 10px 14px;
+            background: #f87171;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-clear-note:hover { background: #ef4444; }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 3px solid #ddd;
+            border-radius: 6px;
+            font-size: 20px;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4a90d9;
+        }
+      
+  .field-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .field-row input { flex: 1; }
+        .field-row select.field-name-select {
+            flex: 1;
+            background-color: #374151;
+            color: #f3f4f6;
+            border: 2px solid #4b5563;
+        }
+        .field-row select.field-name-select:focus {
+            border-color: #6366f1;
+            outline: none;
+        }
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-add { background: #4a90d9; color: #fff; }
+        .btn-add:hover { background: #3a7bc8; }
+        .btn-remove { background: #e74c3c; color: #fff; padding: 10px 14px; }
+        .btn-remove:hover { background: #c0392b; }
+        .btn-submit { background: #27ae60; color: #fff; width: 100%; margin-top: 20px; }
+        .btn-submit:hover { background: #219a52; }
+        #properties-container { margin-top: 15px; }
+        .property-block {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .property-header {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .property-header input.property-name,
+        .property-header select.property-class {
+            flex: 1;
+            min-width: 0;
+        }
+        .property-header select.property-class {
+            background-color: #374151;
+            color: #f3f4f6;
+            border: 2px solid #4b5563;
+        }
+        .property-header select.property-class:focus {
+            border-color: #6366f1;
+            outline: none;
+        }
+        .btn-select { background: #17a2b8; color: #fff; }
+        .btn-select:hover { background: #138496; }
+        .property-fields {
+            margin-left: 20px;
+            border-left: 3px solid #4a90d9;
+            padding-left: 15px;
+        }
+        .btn-add-field { background: #9b59b6; color: #fff; font-size: 14px; padding: 10px 16px; }
+        .btn-add-field:hover { background: #8e44ad; }
+        .btn-add-property { background: #4a90d9; color: #fff; }
+        .btn-add-property:hover { background: #3a7bc8; }
+        .combo-input { display: flex; gap: 10px; }
+        .combo-input select { width: 50%; }
+        .combo-input input { width: 50%; }
+        .output {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .output pre { margin: 0; white-space: pre-wrap; word-break: break-all; }
+  
+      /* Dark Theme */
+        body.dark-theme { background: #1a1a2e; color: #eaeaea; }
+        body.dark-theme .container { background: #16213e; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3); }
+        body.dark-theme h1 { color: #eaeaea; }
+        body.dark-theme label { color: #b0b0b0; }
+        body.dark-theme select, body.dark-theme input { background-color: #1a1a2e; color: #eaeaea; border-color: #4a5568; }
+        body.dark-theme select:focus, body.dark-theme input:focus { border-color: #6366f1; }
+        body.dark-theme #themeToggleBtn { background-color: #1a1a2e; color: #eaeaea; border-color: #4a5568; }
+        body.dark-theme #themeToggleBtn:hover { background-color: #334155; }
+        body.dark-theme .property-block { background: #1a1a2e; border-color: #4a5568; }
+        body.dark-theme .property-fields { border-left-color: #6366f1; }
+        body.dark-theme .output { background: #1a1a2e; border-color: #4a5568; }
+        body.dark-theme .output pre { color: #a7f3d0; }
+        body.dark-theme .field-row select.field-name-select { background-color: #1a1a2e; border-color: #4a5568; }
+        body.dark-theme .property-header select.property-class { background-color: #1a1a2e; border-color: #4a5568; }
+        body.dark-theme .note-section { background: linear-gradient(135deg, #1e3a5f, #1e293b); border-color: #3b82f6; }
+        body.dark-theme .note-label { color: #60a5fa; }
+        body.dark-theme .note-input-container input { background: #1a1a2e; border-color: #3b82f6; color: #eaeaea; }
+        body.dark-theme .note-input-container input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }

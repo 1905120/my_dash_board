@@ -1,0 +1,8 @@
+[
+  { "label": "Dashboard", "url": "/" },
+  { "label": "CD Manager", "url": "/CD_manager" },
+  { "label": "Manage UTP", "url": "/manage-utp" },
+  { "label": "Generate Ofs", "url": "/CreateOfs" },
+  { "label": "Online Jira", "url": "/online-jira" },
+  { "label": "Manage UTP", "url": "/manage-utp" }
+]

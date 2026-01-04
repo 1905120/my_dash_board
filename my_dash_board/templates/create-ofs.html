@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Field Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='nav/nav.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='createOfs/styles.css') }}" />
+</head>
+<body>
+    <!-- Navigation Component - just add this div -->
+    <div id="nav-container" data-logo="Create OFS"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>CREATE OFS</h1>
+            <button id="themeToggleBtn">🌙</button>
+        </div>
+
+        <!-- Note field with toggle icon -->
+        <div class="note-section">
+            <div class="note-toggle" onclick="toggleNoteField()">
+                <span class="note-icon" id="noteIcon">📝</span>
+                <span class="note-label">Add Note</span>
+            </div>
+            <div class="note-input-container" id="noteInputContainer" style="display: none;">
+                <input type="text" id="note-input" placeholder="Enter your note here...">
+                <button type="button" class="btn-clear-note" onclick="clearNote()">✕</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="table-select">Application</label>
+            <div class="combo-input">
+                <select id="table-select" onchange="onApplicationChange()">
+                    <option value="">-- Select Application --</option>
+                </select>
+                <input type="text" id="table-input" placeholder="Or type custom value">
+            </div>
+        </div>
+        <!-- AAA-specific fields - hidden by default -->
+        <div id="aaa-fields" style="display: none;">
+            <div class="form-group">
+                <label for="arrangement-select">Arrangement</label>
+                <div class="combo-input">
+                    <select id="arrangement-select" onchange="syncToInput('arrangement-select', 'arrangement-input')">
+                        <option value="">-- Select Arrangement --</option>
+                    </select>
+                    <input type="text" id="arrangement-input" placeholder="Or type custom value">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="date-select">Date</label>
+                <div class="combo-input">
+                    <input type="date" id="date-select">
+                    <input type="text" id="date-input" placeholder="Or type custom value">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="product-select">Product ID</label>
+                <div class="combo-input">
+                    <select id="product-select" onchange="syncToInput('product-select', 'product-input')">
+                        <option value="">-- Select Product --</option>
+                    </select>
+                    <input type="text" id="product-input" placeholder="Or type custom value">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="companyId-select">Company ID</label>
+                <div class="combo-input">
+                    <select id="companyId-select" onchange="syncToInput('companyId-select', 'companyId-input')">
+                        <option value="">-- Select company Id --</option>
+                    </select>
+                    <input type="text" id="companyId-input" placeholder="Or type custom value">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="currency-select">Currency</label>
+                <div class="combo-input">
+                    <select id="currency-select" onchange="syncToInput('currency-select', 'currency-input')">
+                        <option value="">-- Select Currency --</option>
+                    </select>
+                    <input type="text" id="currency-input" placeholder="Or type custom value">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="customer-select">Customer</label>
+                <div class="combo-input">
+                    <select id="customer-select" onchange="syncToInput('customer-select', 'customer-input')">
+                        <option value="">-- Select Customer --</option>
+                    </select>
+                    <input type="text" id="customer-input" placeholder="Or type custom value">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="activity-select">Activity</label>
+                <div class="combo-input">
+                    <select id="activity-select" onchange="syncToInput('activity-select', 'activity-input')">
+                        <option value="">-- Select Activity --</option>
+                    </select>
+                    <input type="text" id="activity-input" placeholder="Or type custom value">
+                </div>
+            </div>
+        </div>
+   
+     <!-- Properties section - hidden until application is selected -->
+        <div id="properties-section" style="display: none;">
+            <div class="form-group">
+                <label id="properties-label">Properties</label>
+                <button type="button" class="btn btn-add-property" id="add-property-btn" onclick="addProperty()">+ Add Property</button>
+                <div id="properties-container"></div>
+            </div>
+            <button type="button" class="btn btn-submit" onclick="submitData()">Submit</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='nav/nav.js') }}"></script>
+    <script src="{{ url_for('static', filename='createOfs/script.js') }}"></script>
+</body>
+</html>
