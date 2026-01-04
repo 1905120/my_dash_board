@@ -830,9 +830,9 @@ saveBtn.addEventListener("click", async () => {
     comments: document.getElementById("comments").value,
     today_plan: document.getElementById("today_plan").value,
     missed_plan: document.getElementById("missed_plan").value,
-    resource_dir: document.getElementById("resource_dir").value,
-    log: document.getElementById("log").value,
-    jira_link: document.getElementById("jira_link").value
+    // resource_dir: document.getElementById("resource_dir").value,
+    // log: document.getElementById("log").value,
+    // jira_link: document.getElementById("jira_link").value
   }
 };
   console.log(defect);
