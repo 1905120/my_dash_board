@@ -305,8 +305,8 @@ def get_utp_options():
     """Returns the list of available UTP operations and values"""
     try:
         data       = read_file(f'{CURRENT_FILE}\\utp_utility_data\\data.json', "json")
-        operations = get_json_obj(data["utp_update_options"])
-        values     = get_json_obj(data["utpPacks"])
+        operations     = data["Operation"]
+        values = data["utp_update_options"]
         return jsonify({
             "status": "success",
             "operations": operations,
