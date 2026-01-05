@@ -1,41 +1,47 @@
 {
-    "Operation" : 
-                 [
-                    {
-                    "label": "Modify Current UTP Pack",
-                    "value": 1
-                    },
-                    {
-                    "label": "Generate Module",
-                    "value": 2
-                    },
-                    {
-                    "label": "Clear Logs (Temenos/log, Temenos/TAFJ/log, Temenos/TAFJ/logT24)",
-                    "value": 3
-                    },
-                    {
-                    "label": "Clear Cache (Temenos/jboss/standalone/data, Temenos/jboss/standalone/tmp)",
-                    "value": 4
-                    },
-                    {
-                    "label": "Clear Environment (Execute Operations 3 and 4)",
-                    "value": 5
-                    },
-                    {
-                    "label": "Manage Deployments",
-                    "value": 6
-                    }
-                ]
-,
-    "deploymentOptions" : {},
-    "utp_update_options" : [
-    {
-      "label": "Development UTP Directory",
-      "value": "C:\\UTP\\UTP_DEV\\Temenos"
-    },
-    {
-      "label": "Latest UTP Directory",
-      "value": "C:\\UTP\\UTP_LATEST"
-    }
-  ]
+    "Operation": [
+        {
+            "label": "Modify Current UTP Pack",
+            "value": 1
+        },
+        {
+            "label": "Generate Module",
+            "value": 2
+        },
+        {
+            "label": "Clear Logs (Temenos/log, Temenos/TAFJ/log, Temenos/TAFJ/logT24)",
+            "value": 3
+        },
+        {
+            "label": "Clear Cache (Temenos/jboss/standalone/data, Temenos/jboss/standalone/tmp)",
+            "value": 4
+        },
+        {
+            "label": "Clear Environment (Execute Operations 3 and 4)",
+            "value": 5
+        },
+        {
+            "label": "Manage Deployments",
+            "value": 6
+        }
+    ],
+    "deploymentOptions": {},
+    "utp_update_options": [
+        {
+            "label": "R202310",
+            "value": "C:\\UTP\\UTP-REL-R202310\\Temenos"
+        },
+        {
+            "label": "R22",
+            "value": "C:\\UTP\\UTP-REL-R22\\Temenos"
+        },
+        {
+            "label": "Dev",
+            "value": "C:\\UTP\\UTP_DEV\\Temenos"
+        },
+        {
+            "label": "Utp latest",
+            "value": "C:\\UTP\\UTP_LATEST\\Temenos"
+        }
+    ]
 }

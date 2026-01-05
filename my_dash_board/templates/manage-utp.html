@@ -11,13 +11,17 @@
 
   <!-- Navigation Component -->
   <div id="nav-container" data-logo="Manage UTP"></div>
-
+  
   <main class="content">
+    
     <div class="page-header">
       <h1>🛠️ Manage UTP</h1>
+      <div>
+        <button id="toggleUtpPackAddBtn">Add Utp Pack</button>
       <button id="themeToggleBtn" title="Toggle Theme">🌙</button>
+      </div>
     </div>
-
+    
     <div class="utp-container">
       <!-- Value Input Section (Combo: Dropdown + Editable) -->
       <div class="input-section">
@@ -79,6 +83,22 @@
       </div>
     </div>
   </div>
+
+
+<!-- <button onclick="openAddUtpPackPopup()">Add UTP Pack</button> -->
+
+<div id="AddUtpPack">
+  <div id="AddUtpPack-popup">
+    <h2 style="margin-top:0; margin-bottom:15px; font-size:18px; color:#333;">Add UTP Pack</h2>
+    <label><input type="text" id="utpLabel" placeholder=" Enter UTP label"></label>
+    <label><input type="text" id="path" placeholder=" Enter path"></label>
+    <div class="buttons">
+      <button id="submitUtpPack">Submit</button>
+      <button id="CancelUtpAddPopup">Cancel</button>
+    </div>
+  </div>
+</div>
+
 
   <script src="{{ url_for('static', filename='nav/nav.js') }}"></script>
   <script src="{{ url_for('static', filename='manage_utp/manage-utp.js') }}"></script>

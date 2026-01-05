@@ -555,3 +555,142 @@ body.dark-theme .secondary-btn:hover {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
+
+.AddUtpPack {
+  display: none;        /* hidden initially */
+  width: 250px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #333;
+  margin-top: 10px;
+}
+#toggleUtpPackAddBtn{
+  padding: 13px 36px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background-color: #201f1f;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); */
+}
+
+#toggleUtpPackAddBtn:hover{
+  background-color: rgb(91, 88, 88);
+}
+
+/* Overlay */
+#AddUtpPack {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Beautiful background */
+  background: radial-gradient(circle at center, rgba(0,0,0,0.45), rgba(0,0,0,0.75));
+  backdrop-filter: blur(3px);
+
+  /* Hidden initially */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+/* Active state */
+#AddUtpPack.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Popup container */
+#AddUtpPack-popup {
+  background: linear-gradient(180deg, #ffffff, #f8f9fb);
+  width: 500px;
+  padding: 26px 28px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.15);
+
+  transform: translateY(10px) scale(0.95);
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  opacity: 0;
+}
+
+/* Animate popup */
+#AddUtpPack.active #AddUtpPack-popup {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Labels */
+#AddUtpPack-popup label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 14px;
+}
+
+/* Inputs */
+#AddUtpPack-popup input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 1px;
+
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#AddUtpPack-popup input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74,144,226,0.25);
+}
+
+/* Buttons */
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.buttons button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.buttons button#submitUtpPack {
+  background: #4a90e2;
+  color: #fff;
+  visibility: hidden;
+}
+
+.buttons button#submitUtpPack:hover {
+  background: #3b7dcc;
+}
+
+.buttons button#CancelUtpAddPopup {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.buttons button#CancelUtpAddPopup:hover {
+  background: #d5d5d5;
+}
+
+.buttons button:active {
+  transform: scale(0.96);
+}
+
+

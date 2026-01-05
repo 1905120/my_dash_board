@@ -7,7 +7,7 @@ const submitBtn = document.getElementById('submitBtn');
 const resultSection = document.getElementById('resultSection');
 const resultOutput = document.getElementById('resultOutput');
 const loadingOverlay = document.getElementById('loadingOverlay');
-
+const addUtpPackPrimaryBtn = document.getElementById('addUtpPack');
 // Deployment popup elements
 const deploymentPopup = document.getElementById('deploymentPopup');
 const deploymentOptions = document.getElementById('deploymentOptions');
@@ -327,6 +327,68 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.classList.add('show'), 10);
   setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
 }
+
+  // document.addEventListener("DOMContentLoaded", () => {
+  const addUtpPackBtn = document.getElementById("toggleUtpPackAddBtn");
+  const cancelUtpPackBtn = document.getElementById("CancelUtpAddPopup");
+  const submitUtpPackBtn = document.getElementById("submitUtpPack");
+  const UtpPackpopup = document.getElementById("AddUtpPack");
+  const utpLabel = document.getElementById("utpLabel")
+  const path = document.getElementById("path")
+  
+  addUtpPackBtn.addEventListener("click", openAddUtpPackPopup);
+  cancelUtpPackBtn.addEventListener("click", closeAddUtpPackPopup);
+  submitUtpPackBtn.addEventListener("click", submitAddUtpPackData);
+  utpLabel.addEventListener("change", checkInputs);
+  path.addEventListener("change", checkInputs);
+
+  function checkInputs() {
+    if (utpLabel.value.trim() !== "" && path.value.trim() !== "") {
+      submitUtpPackBtn.style.visibility = "visible";
+    }
+  }
+
+  function openAddUtpPackPopup() {
+    UtpPackpopup.classList.add("active");
+  }
+
+  function closeAddUtpPackPopup() {
+    UtpPackpopup.classList.remove("active");
+    submitUtpPackBtn.style.visibility = "hidden";
+    utpLabel.value = "";
+    path.value = "";
+  }
+
+  async function submitAddUtpPackData() {
+    
+    payload = {
+      UTP_Label: utpLabel.value,
+      Path: path.value
+    }
+    
+    try{
+        const response = await fetch('/api/manage-utp/addUtpPackDetails', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify(payload)
+                                    });
+        const data = await response.json();
+        if (response.status == 200) {
+          showToast('successfully saved Utp pack details', 'success');
+          await loadOptions();
+        }else{
+        console.error('Error saving Utp pack details', err, response.status);
+        showToast(err, 'error');
+        }
+      } 
+      catch (err) {
+          console.error('Error saving Utp pack details', err);
+          showToast('Error saving Utp pack details', 'error');
+      }
+
+    closeAddUtpPackPopup();
+  }
+// });
 
 // Initialize on load
 init();
