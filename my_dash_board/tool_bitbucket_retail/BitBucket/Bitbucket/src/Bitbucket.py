@@ -167,6 +167,9 @@ class bitbucket:
                 if not(option_tag_count):
                     break
 
+            if list_of_tags:
+                list_of_tags.insert(0, self.dev_branch)
+
             # if display_tags:
             #     self.range_val, self.from_range, self.to_range, self.tag_idx, self.mutiple_tag_process, self.update_tag_details  = I_O.get_user_selected_tag_idx(len(self.recent_tags) - 1)
 
