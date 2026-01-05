@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, abort, request
 import os, json
 from common import DEFAULT_OPTIONS, TABLES_DIR, CURRENT_FILE,JIRA_CACHE_PATH, BITBUCKET_CACHE_PATH
-from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, CDM_move_to_archive_defect_details, CDM_move_to_current_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup
+from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, CDM_move_to_archive_defect_details, CDM_move_to_current_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details
 import subprocess
 import sys
 
@@ -320,6 +320,23 @@ def get_utp_options():
             "operations": [],
             "values": []
         }), 500
+    
+@app.route('/api/manage-utp/addUtpPackDetails', methods=["POST"])
+def addUtpPackDetails():
+    try:
+        data = request.get_json()
+        lable = data.get("UTP_Label")
+        Path = data.get("Path")
+        res = add_utp_pack_details(lable, Path)
+        return jsonify({
+                "status": "success",
+                "message": "path added"
+            }), 200
+    except Exception as e:
+        return jsonify({
+                "status": "error",
+                "message": str(e)
+            }), 400
 
 @app.route('/api/manage-utp/execute', methods=['POST'])
 def execute_utp_operation():
@@ -750,4 +767,4 @@ def static_files(filename):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=True)

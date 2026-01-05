@@ -1,4 +1,4 @@
-from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES
+from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH
 import os
 import json
 import shutil
@@ -249,3 +249,21 @@ def get_jira_extracted_data(jira_id):
 def clear_cache_files_for_jiro_prod_lookup(path):
     delete_file(option="all", path=path)
     return True
+
+def add_utp_pack_details(lable, path):
+    data = read_file(f'{UTP_PACK_DETAILS_PATH}\\data.json', 'json')
+    exists_utp_pack_details = data["utp_update_options"]
+    add_utp_pack_det = True
+    for utp_pack in exists_utp_pack_details:
+        if lable == utp_pack['label']:
+            add_utp_pack_det = False
+    if add_utp_pack_det:
+        exists_utp_pack_details.append({
+                "label" : lable,
+                "value" : path
+        })
+        data["utp_update_options"] = exists_utp_pack_details
+        write_json_file(f'{UTP_PACK_DETAILS_PATH}\\data.json', data)
+    else:
+        raise Exception("invalid lable")
+    return False
