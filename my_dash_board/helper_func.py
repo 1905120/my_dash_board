@@ -8,6 +8,7 @@ from tool_bitbucket_retail.BitBucket.Bitbucket.src.Main import Process_Bitbucket
 from Jira.src.CONTROLLER import process_jira_tasks
 from pathlib import Path
 import time
+from fetch_opengrok import update_aaa_table
 
 def safe_delete_folder(path, retries=3, delay=0.5):
 
@@ -270,7 +271,5 @@ def add_utp_pack_details(lable, path):
 
 
 def update_available_all_table_for_create_ofs_module():
-    for table_dir in os.listdir(CREATE_OFS_TABLES_PATH):
-        for table in os.listdir(f'{CREATE_OFS_TABLES_PATH}\\{table_dir}'):
-            print(table)
+    update_aaa_table()
     return
