@@ -75,7 +75,7 @@ def write_output_file(file_ptr, update_tag_details, add_repo, add_parent_details
                         path = 'path missing'
                         
                     file = code_change[-1].replace(',', ';')
-                    file_extn = file.split(".")[-1]
+                    file_extn = 'COMMON' if file.startswith("I_") else file.split(".")[-1]
                     write_str_list = []
                     write_str_list.extend(write_str1_list)
                     write_str_list.append(component)
