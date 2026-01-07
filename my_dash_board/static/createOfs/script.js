@@ -441,4 +441,5 @@ updatedTables.addEventListener("click", async () => {
             themeToggleBtn.textContent = isDark ? "☀️" : "🌙";
             localStorage.setItem("theme", isDark ? "dark" : "light");
         };
+
         initTheme();
