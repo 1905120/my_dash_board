@@ -1,0 +1,38 @@
+{
+    "RET-94747": {
+        "client_name": "PT Bank of India Indonesia Tbk",
+        "status": "analysis",
+        "time_spent": "3d",
+        "release": "R22",
+        "comments": "",
+        "today_plan": "will discuss with geo",
+        "missed_plan": "discuss with geo and move to coding / rejected",
+        "resource_dir": "C://Users//r.thirumalaiselvan//OneDrive - Temenos//Desktop//git//my_dash_board//my_dash_board//CDM_Storage//RESOURCES//RET-94747",
+        "log": "C://Users//r.thirumalaiselvan//OneDrive - Temenos//Desktop//git//my_dash_board//my_dash_board//CDM_Storage//RESOURCES//RET-94747//Log.txt",
+        "jira_link": "https://jira.temenos.com/browse/RET-94747"
+    },
+    "RET-93504": {
+        "client_name": "APICORP",
+        "status": "code review",
+        "time_spent": "4d",
+        "release": "202309",
+        "comments": "Moved to CR 5 jan 2026",
+        "today_plan": "Pritha should either confirm the fix / suggest new fix",
+        "missed_plan": "moving to Code review",
+        "resource_dir": "C://Users//r.thirumalaiselvan//OneDrive - Temenos//Desktop//git//my_dash_board//my_dash_board//CDM_Storage//RESOURCES//RET-93504",
+        "log": "C://Users//r.thirumalaiselvan//OneDrive - Temenos//Desktop//git//my_dash_board//my_dash_board//CDM_Storage//RESOURCES//RET-93504//Log.txt",
+        "jira_link": "https://jira.temenos.com/browse/RET-93504"
+    },
+    "RET-95811": {
+        "client_name": "MUFG Bank Limited - India",
+        "status": "new",
+        "time_spent": "4d",
+        "release": "R22",
+        "comments": "",
+        "today_plan": "Do replication",
+        "missed_plan": "",
+        "resource_dir": "C://Users//r.thirumalaiselvan//OneDrive - Temenos//Desktop//git//my_dash_board//my_dash_board//CDM_Storage//RESOURCES//RET-95811",
+        "log": "C://Users//r.thirumalaiselvan//OneDrive - Temenos//Desktop//git//my_dash_board//my_dash_board//CDM_Storage//RESOURCES//RET-95811//Log.txt",
+        "jira_link": "https://jira.temenos.com/browse/RET-95811"
+    }
+}

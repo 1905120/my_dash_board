@@ -1,4 +1,4 @@
-from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH
+from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH, CREATE_OFS_TABLES_PATH
 import os
 import json
 import shutil
@@ -267,3 +267,10 @@ def add_utp_pack_details(lable, path):
     else:
         raise Exception("invalid lable")
     return False
+
+
+def update_available_all_table_for_create_ofs_module():
+    for table_dir in os.listdir(CREATE_OFS_TABLES_PATH):
+        for table in os.listdir(f'{CREATE_OFS_TABLES_PATH}\\{table_dir}'):
+            print(table)
+    return
