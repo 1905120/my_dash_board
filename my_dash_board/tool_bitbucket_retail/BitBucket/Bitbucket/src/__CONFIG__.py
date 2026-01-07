@@ -103,4 +103,4 @@ def read_credentials_file():
         #print(metadata)
         #exit()
                 
-        return username, password, update_pr_details, add_code_changes, add_parent_task_info, add_repo_det
+        return username, password, True, True, True, True
