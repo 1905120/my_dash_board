@@ -1,4 +1,18 @@
 let propertyCount = 0;
+
+const updatedTables = document.getElementById("updatedTables");
+
+updatedTables.addEventListener("click", async () => {
+    const response = await fetch('/createOfs/api/updatedTables')
+                            .then(response => response.json())
+                            .then(data => {
+                                alert('Tales updated successfully')
+                            })
+                            .catch(error => {
+                                alert('Failed to update tables');
+                            });
+        })
+
         let fieldCounts = {};
 
         function toggleNoteField() {

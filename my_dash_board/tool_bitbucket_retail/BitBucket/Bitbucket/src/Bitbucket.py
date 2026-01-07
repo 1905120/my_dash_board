@@ -284,7 +284,8 @@ class bitbucket:
                 except Exception as e:
                     print(colorful.red('component missing in commit !'), 'exception on fetching component @PR', '\nActual MSG :', e)
                     pass
-            code_changes.append(chg_set)
+            #code_changes.append(chg_set)
+            code_changes.append({'change_set' : chg_set, 'type' : code_component['type']})
             count += 1
         return [ code_changes, count, pr_det]
 

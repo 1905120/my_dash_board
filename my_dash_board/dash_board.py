@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, abort, request
 import os, json
 from common import DEFAULT_OPTIONS, TABLES_DIR, CURRENT_FILE,JIRA_CACHE_PATH, BITBUCKET_CACHE_PATH
-from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, CDM_move_to_archive_defect_details, CDM_move_to_current_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details
+from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, CDM_move_to_archive_defect_details, CDM_move_to_current_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, update_available_all_table_for_create_ofs_module
 import subprocess
 import sys
 
@@ -600,6 +600,22 @@ def get_field_options(field_name):
                 "message": f"Unknown field: {field_name}",
                 "data": []
             }), 404
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "data": []
+        }), 500
+    
+@app.route("/createOfs/api/updatedTables", methods = ["GET"])
+def update_all_table():
+    try:
+        res = update_available_all_table_for_create_ofs_module()
+        return jsonify({
+                "status": "error",
+                "message": res,
+                "data": []
+            }), 200
     except Exception as e:
         return jsonify({
             "status": "error",

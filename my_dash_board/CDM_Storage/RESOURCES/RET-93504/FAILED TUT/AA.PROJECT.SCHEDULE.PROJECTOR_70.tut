@@ -1,0 +1,392 @@
+TESTCASE AA.PROJECT.SCHEDULE.PROJECTOR_70
+*-----------------------------------------------------------------------------
+* @author     :     nraghav@temenos.com
+*-----------------------------------------------------------------------------
+*
+*   Modification History :
+*
+* 25/08/23 -  Enhancement : BB-2679
+*             Task        : BB-2755
+*             Outstanding amount must be updated with residual amount in case of Finance lease as Return
+*
+* 06/01/26 - Task   : RET-95239
+*            Defect : RET-93504
+*            SCHEDULE.INFO<71> flag whould be set only for drawings available.
+*
+*-----------------------------------------------------------------------------
+*** <region = Header>
+*** <desc> </desc>
+ 
+    $USING AA.Framework
+    $USING AC.BalanceUpdates
+    $USING AA.TermAmount
+    $USING AA.ProductFramework
+    $USING EB.SystemTables
+    $USING AA.Interest
+    $USING AA.Tax
+    $USING AA.PaymentSchedule
+    $USING AF.Framework
+    $USING AA.Participant
+    $USING AA.Customer
+    $USING EB.ErrorProcessing
+    
+    UTF.setTarget("AA.PROJECT.SCHEDULE.PROJECTOR")                    ;* Name of the Target routine for which test is done
+    UTF.setDescription("To check if the projection is displayed with difference of total due for asset finan") ;* Default description for all tests
+    GOSUB runtest1                                  ;* Meaningful description for testcase 1
+    
+*
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+*** <region name= testcase1>
+*** <desc> description of testcase1</desc>
+
+runtest1:
+
+    UTF.reset() ;* Reset all
+
+    PaymentType = "CONSTANT.MONTHLY":@FM:"CONSTANT.MONTHLY"
+    PaymentMethod = "DUE":@FM:"DUE"
+    
+    GOSUB setSharedDetails ;*Commons if any required for all test cases
+    GOSUB setSharedStubs ;*Stubs if any required for all test cases
+
+    UTF.runTest("Check if Outstanding amount is calculated based on the difference of the due amount instead of the principal amount")
+    
+    ExpDueOut = "100000":@FM:"94000"
+    UTF.assertEquals(ExpDueOut, DueOuts)
+    
+    ScheduleStub=UTF.getNbInvocation(STUB3)
+    UTF.assertEquals(ScheduleStub, '1')
+
+RETURN
+**** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Stub methods common for all test cases>
+*** <desc> </desc>
+setSharedStubs:
+
+    R.ARRANGEMENT<AA.Framework.Arrangement.ArrStartDate> = "20090915"
+    
+    STUB1 = UTF.addStub("AA.Framework.GetArrangement")
+    UTF.addStubParam(STUB1,"AA09361GBB9Y", UTF.same())
+    UTF.addStubParam(STUB1,UTF.any(),R.ARRANGEMENT)
+    UTF.addStubParam(STUB1,UTF.any(), UTF.same())
+
+    STUB2=UTF.addStub("AA.PaymentSchedule.GetBillDetails")
+    UTF.addStubParam(STUB2,UTF.any(),UTF.same())
+    UTF.addStubParam(STUB2,UTF.any(), UTF.same())
+    UTF.addStubParam(STUB2,UTF.any(), UTF.same())
+    UTF.addStubParam(STUB2,UTF.any(), UTF.same())
+    UTF.setRepeatable(STUB2)
+
+    GetParticipantRecord = UTF.addStub("AA.Participant.GetParticipantRecord")
+    UTF.addStubParam(GetParticipantRecord, UTF.any(), UTF.same()) ;* ArrangementId
+    UTF.addStubParam(GetParticipantRecord, UTF.any(), UTF.same()) ;*  EffectiveDate
+    UTF.addStubParam(GetParticipantRecord, UTF.any(), UTF.same()) ;*  PropertyType
+    UTF.addStubParam(GetParticipantRecord, UTF.any(), UTF.same()) ;*  PropertyId
+    UTF.addStubParam(GetParticipantRecord, UTF.any(), UTF.same()) ;*  PropertyRecord
+    UTF.addStubParam(GetParticipantRecord, UTF.any(), UTF.same()) ;*  Reserved1
+    
+    PaymentDates = "20090915":@FM:"20090923"
+    PaymentAmount = "10000":@FM:"9000"
+    PaymentProperties = "ASFACCOUNT":@SM:"LEASEINT":@SM:"LEASEMARGIN":@FM:"ASFACCOUNT":@SM:"LEASEINT":@SM:"LEASEMARGIN"
+    OutstandingAmount = "100000":@FM:"94000"
+    PaymentPropertiesAmt = "7000":@FM:"6000"
+    
+    SCHEDULE.INFO = ''
+    SCHEDULE.INFO<1> = ArrangementId
+    SCHEDULE.INFO<2> = '20090915'
+    SCHEDULE.INFO<3> = 'SCHEDULE'
+    SCHEDULE.INFO<8> = '1'
+    SCHEDULE.INFO<38> = ''
+    
+    STUB3 = UTF.addStub("AA.PaymentSchedule.ProjectPaymentScheduleSchedules")
+    UTF.addStubParam(STUB3, SCHEDULE.INFO, UTF.same()) ;* ScheduleInfo
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  ReqdEndDate
+    UTF.addStubParam(STUB3, "", UTF.same()) ;*  NoCycles
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  AdjustFinalAmount
+    UTF.addStubParam(STUB3, UTF.any(), PaymentDates) ;*  PaymentDates
+    UTF.addStubParam(STUB3, UTF.any(), PaymentType) ;*  PaymentTypes
+    UTF.addStubParam(STUB3, UTF.any(), PaymentMethod) ;*  PaymentMethods
+    UTF.addStubParam(STUB3, UTF.any(), PaymentAmount) ;*  PaymentAmounts
+    UTF.addStubParam(STUB3, UTF.any(), PaymentProperties) ;*  PaymentProperties
+    UTF.addStubParam(STUB3, UTF.any(), PaymentPropertiesAmt) ;*  PaymentPropertiesAmt
+    UTF.addStubParam(STUB3, UTF.any(), "LEASEINT") ;*  TaxDetails
+    UTF.addStubParam(STUB3, UTF.any(), OutstandingAmount) ;*  OutstandingAmount
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  FinalPrincipalPos
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  PaymentPercentages
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  PaymentMinAmounts
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  PaymentDeferDates
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  PaymentBillTypes
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  ChargeAdjustmentInfo
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  ParticipantIds
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  ParticipantPropertiesAmt
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  ParticipantTaxDetails
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  ParticipantOutStandingAmt
+    UTF.addStubParam(STUB3, UTF.any(), UTF.same()) ;*  RetError
+
+    STUB4 = UTF.addStub("AA.PaymentSchedule.GetSysBillType")
+    UTF.addStubParam(STUB4, "ACT.CHARGE", UTF.same()) ;* BillType
+    UTF.addStubParam(STUB4, UTF.any(), "ACT.CHARGE") ;*  SysBillType
+    UTF.addStubParam(STUB4, UTF.any(), UTF.same()) ;*  ReturnError
+    
+    STUB4 = UTF.addStub("AA.PaymentSchedule.GetSysBillType")
+    UTF.addStubParam(STUB4, UTF.any(), UTF.same()) ;* BillType
+    UTF.addStubParam(STUB4, UTF.any(), UTF.same()) ;*  SysBillType
+    UTF.addStubParam(STUB4, UTF.any(), UTF.same()) ;*  ReturnError
+    UTF.setRepeatable(STUB4)
+    
+    STUB5 = UTF.addStub("AA.Framework.ActivityInitialise")
+    
+    STUB6 = UTF.addStub("AF.Framework.InitPropertyCommon")
+    UTF.addStubParam(STUB6, UTF.any(), UTF.same()) ;* FileName
+    UTF.addStubParam(STUB6, UTF.any(), UTF.same()) ;*  RetError
+    
+    STUB7 = UTF.addStub("AA.Framework.DestroyMasterCommon")
+
+    STUB8 = UTF.addStub("AA.Framework.GetArrangementProperties")
+    UTF.addStubParam(STUB8, UTF.contains("AA09361GBB9Y"), UTF.same()) ;* ArrangementInfo
+    UTF.addStubParam(STUB8, "20090915", UTF.same()) ;*  EffDate
+    UTF.addStubParam(STUB8, UTF.any(), UTF.same()) ;*  ArrRecord
+    UTF.addStubParam(STUB8, UTF.any(), "SCHEDULE":@VM:"ASFACCOUNT":@VM:"LEASEINT":@VM:"LEASEMARGIN") ;*  PropertyList
+
+    PROP.LIST = "SCHEDULE":@VM:"ASFACCOUNT":@VM:"LEASEINT":@VM:"LEASEMARGIN"
+    CLASS.LIST = "PAYMENT.SCHEDULE":@VM:"ACCOUNT":@VM:"INTEREST":@VM:"INTEREST"
+    STUB9 = UTF.addStub("AA.ProductFramework.GetPropertyClass")
+    UTF.addStubParam(STUB9, PROP.LIST, UTF.same()) ;* Property
+    UTF.addStubParam(STUB9, UTF.any(), CLASS.LIST) ;*  PropertyClass
+    
+    STUB9 = UTF.addStub("AA.ProductFramework.GetPropertyClass")
+    UTF.addStubParam(STUB9, "ASFACCOUNT", UTF.same()) ;* Property
+    UTF.addStubParam(STUB9, UTF.any(), "ACCOUNT") ;*  PropertyClass
+
+    STUB9 = UTF.addStub("AA.ProductFramework.GetPropertyClass")
+    UTF.addStubParam(STUB9, "LEASEINT", UTF.same()) ;* Property
+    UTF.addStubParam(STUB9, UTF.any(), "INTEREST") ;*  PropertyClass
+
+    STUB9 = UTF.addStub("AA.ProductFramework.GetPropertyClass")
+    UTF.addStubParam(STUB9, "LEASEMARGIN", UTF.same()) ;* Property
+    UTF.addStubParam(STUB9, UTF.any(), "INTEREST") ;*  PropertyClass
+    
+    R.PAYMENT.SCHEDULE<AA.PaymentSchedule.PaymentSchedule.PsPaymentType> = "CONSTANT.MONTHLY"
+    R.PAYMENT.SCHEDULE<AA.PaymentSchedule.PaymentSchedule.PsProperty> = "ASFACCOUNT":@SM:"LEASEINT":@SM:"LEASEMARGIN"
+    
+    STUB10 = UTF.addStub("AA.ProductFramework.GetPropertyRecord")
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;* Template
+    UTF.addStubParam(STUB10, "AA09361GBB9Y", UTF.same()) ;*  IdInfo
+    UTF.addStubParam(STUB10, "SCHEDULE", UTF.same()) ;*  Property
+    UTF.addStubParam(STUB10, "20090915", UTF.same()) ;*  PropertyDate
+    UTF.addStubParam(STUB10, "PAYMENT.SCHEDULE", UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  BaseArrRec
+    UTF.addStubParam(STUB10, UTF.any(), R.PAYMENT.SCHEDULE) ;*  PropertyRecord
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  RecErr
+    
+    R.TERM.AMOUNT<AA.TermAmount.TermAmount.AmtAmount>  = "100000"
+    
+    STUB10 = UTF.addStub("AA.ProductFramework.GetPropertyRecord")
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;* Template
+    UTF.addStubParam(STUB10, "AA09361GBB9Y", UTF.same()) ;*  IdInfo
+    UTF.addStubParam(STUB10, "", UTF.same()) ;*  Property
+    UTF.addStubParam(STUB10, "", UTF.same()) ;*  PropertyDate
+    UTF.addStubParam(STUB10, "TERM.AMOUNT", UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  BaseArrRec
+    UTF.addStubParam(STUB10, UTF.any(), R.TERM.AMOUNT) ;*  PropertyRecord
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  RecErr
+    
+    STUB10 = UTF.addStub("AA.ProductFramework.GetPropertyRecord")
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;* Template
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  IdInfo
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  Property
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  PropertyDate
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  BaseArrRec
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  PropertyRecord
+    UTF.addStubParam(STUB10, UTF.any(), UTF.same()) ;*  RecErr
+    UTF.setRepeatable(STUB10)
+    
+    PropertyName = UTF.addStub("AA.ProductFramework.GetPropertyName")
+    UTF.addStubParam(PropertyName, UTF.any(), UTF.same()) ;* ProductRecord
+    UTF.addStubParam(PropertyName, UTF.any(), UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(PropertyName, UTF.any(), UTF.same()) ;*  Property
+    UTF.setRepeatable(PropertyName)
+    
+;*  AA.ProductFramework.PropertyGetBalanceName(ARRANGEMENT.ID, PROPERTY.ID, LIFECYCLE.STATUS, "", SUB.TYPE, CREDIT.BALANCE.TYPE) ;* Form the credit balance type
+
+    STUB12 = UTF.addStub("AA.ProductFramework.PropertyGetBalanceName")
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same())
+    UTF.setRepeatable(STUB12)
+    
+*  AA.Framework.ReadActivityHistory(ARRANGEMENT.ID, '', EFFECTIVE.DATE, R.ACTIVITY.HISTORY)
+   
+    STUB = UTF.addStub("AA.Framework.ReadActivityHistory")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  ReqdMode
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  EffDate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  RActivityHistory
+    UTF.setRepeatable(STUB)
+    
+    STUB = UTF.addStub("AA.ProductFramework.GetPropertyClass")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Property
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PropertyClass
+    UTF.setRepeatable(STUB)
+
+    STUB11 = UTF.addStub("AA.Framework.BuildPropertyRecords")
+    UTF.addStubParam(STUB11, UTF.any(), UTF.same()) ;* ContractId
+    UTF.addStubParam(STUB11, UTF.any(), UTF.same()) ;*  Property
+    UTF.addStubParam(STUB11, UTF.any(), UTF.same()) ;*  Propertyclass
+    UTF.addStubParam(STUB11, UTF.any(), UTF.same()) ;*  PropertyDates
+    UTF.addStubParam(STUB11, UTF.any(), UTF.same()) ;*  PropertyRecords
+
+    STUB12 = UTF.addStub("AA.ProductFramework.PropertyGetBalanceName")
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same()) ;*  PropertyName
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same()) ;*  LifecycleStatus
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same()) ;*  BalanceDate
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same()) ;*  ChargeoffType
+    UTF.addStubParam(STUB12, UTF.any(), UTF.same()) ;*  BalanceName
+    
+    STUB13 = UTF.addStub("AA.Framework.GetPeriodBalances")
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;* AccountId
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;*  BalanceToCheck
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;*  StartDate
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;*  EndDate
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;*  SystemDate
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;*  BalDetails
+    UTF.addStubParam(STUB13, UTF.any(), UTF.same()) ;*  ErrorMessage
+    UTF.setRepeatable(STUB13)
+
+    STUB14 = UTF.addStub("AA.PaymentSchedule.GetCalcType")
+    UTF.addStubParam(STUB14, UTF.any(), UTF.same()) ;* PaymentTypes
+    UTF.addStubParam(STUB14, UTF.any(), UTF.same()) ;*  CalcTypes
+    UTF.addStubParam(STUB14, UTF.any(), UTF.same()) ;*  ProcessTypes
+    UTF.addStubParam(STUB14, UTF.any(), UTF.same()) ;*  ExtendCycles
+    
+    GetParticipantBill = UTF.addStub("AA.PaymentSchedule.GetParticipantBill")
+    UTF.addStubParam(GetParticipantBill, UTF.any(), UTF.same()) ;* ArrangementId
+    UTF.addStubParam(GetParticipantBill, UTF.any(), UTF.same()) ;*  BorrowerBillId
+    UTF.addStubParam(GetParticipantBill, UTF.any(), UTF.same()) ;*  ParticipantBillIds
+    UTF.addStubParam(GetParticipantBill, UTF.any(), UTF.same()) ;*  RetError
+
+    loadStaticData = UTF.addStub("AA.Framework.LoadStaticData")
+    UTF.addStubParam(loadStaticData, UTF.any(), UTF.same()) ;* Filename
+    UTF.addStubParam(loadStaticData, UTF.any(), UTF.same()) ;*  Staticdataid
+    UTF.addStubParam(loadStaticData, UTF.any(), UTF.same()) ;*  Staticdatarecord
+    UTF.addStubParam(loadStaticData, UTF.any(), UTF.same()) ;*  Error
+    UTF.setRepeatable(loadStaticData)
+    
+    STUB.CLEAR.TXN.DATA = UTF.addStub("AA.Framework.ClearTxnData")
+    UTF.addStubParam(STUB.CLEAR.TXN.DATA, UTF.any(), UTF.same()) ;* BucketName
+
+    PROCESS.TYPE<1> = "INITIALISE"
+    PROCESS.TYPE<5> = "FULL"
+    
+    R.ACCOUNT.DETAILS<AA.PaymentSchedule.AccountDetails.AdBillId> = "AABILL2909"
+    R.ACCOUNT.DETAILS<AA.PaymentSchedule.AccountDetails.AdBillPayDate> = "20090915"
+    R.ACCOUNT.DETAILS<AA.PaymentSchedule.AccountDetails.AdBillStatus> = "ISSUED"
+    R.ACCOUNT.DETAILS<AA.PaymentSchedule.AccountDetails.AdBillType> = "ACT.CHARGE"
+    
+    STUB = UTF.addStub("AA.PaymentSchedule.ProcessAccountDetails")
+    UTF.addStubParam(STUB, "AA09361GBB9Y", UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB, PROCESS.TYPE, UTF.same()) ;*  ProcessType
+    UTF.addStubParam(STUB, "", UTF.same()) ;*  UpdateType
+    UTF.addStubParam(STUB, UTF.any(), R.ACCOUNT.DETAILS) ;*  UpdateInfo
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  RetError
+    
+    STUB = UTF.addStub("AA.Interest.DetermineProfitAmount")
+    UTF.addStubParam(STUB, "AA09361GBB9Y", UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  EffectiveDate
+    UTF.addStubParam(STUB, "LEASEINT", UTF.same()) ;*  PropertyId
+    UTF.addStubParam(STUB, "", UTF.same()) ;*  PropertyRecord
+    UTF.addStubParam(STUB, "", UTF.same()) ;*  PropertyDate
+    UTF.addStubParam(STUB, "CURRENT", UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB, "RETRIEVE", UTF.same()) ;*  CalculateType
+    UTF.addStubParam(STUB, UTF.any(), "2000") ;*  ProfitAmount
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  RemainProfitAmount
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  CalcProfitAmount
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  ProfitRate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  ReturnError
+
+    STUB = UTF.addStub("AA.Interest.DetermineProfitAmount")
+    UTF.addStubParam(STUB, "AA09361GBB9Y", UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  EffectiveDate
+    UTF.addStubParam(STUB, "LEASEMARGIN", UTF.same()) ;*  PropertyId
+    UTF.addStubParam(STUB, "", UTF.same()) ;*  PropertyRecord
+    UTF.addStubParam(STUB, "", UTF.same()) ;*  PropertyDate
+    UTF.addStubParam(STUB, "CURRENT", UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB, "RETRIEVE", UTF.same()) ;*  CalculateType
+    UTF.addStubParam(STUB, UTF.any(), "1000") ;*  ProfitAmount
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  RemainProfitAmount
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  CalcProfitAmount
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  ProfitRate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  ReturnError
+
+    STUB = UTF.addStub("AA.Interest.DetermineInterestMethod")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PropertyId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PropertyRecord
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PropertyDate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  InterestMethod
+    UTF.addStubParam(STUB, UTF.any(), "RECEIVABLE") ;*  AccountingMode
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  ReturnError
+    UTF.setRepeatable(STUB)
+    
+RETURN
+
+*** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Set details common for all test cases>
+*** <desc> </desc>
+setSharedDetails:
+
+*Input Arguments
+    ArrangementId="AA09361GBB9Y"
+    UTF.addParam(ArrangementId)
+    UTF.addParam(SimulationRef)
+    UTF.addParam(NoReset)
+    UTF.addParam(DateRange)
+
+*Output Arguments
+
+    UTF.addParam(TotPayment)
+    DueDates = "20090915":@VM:"20090923"
+    UTF.addParam(DueDates)
+    UTF.addParam(DueDeferDates)
+    UTF.addParam(DueTypes)
+    UTF.addParam(DueMethods)
+    UTF.addParam(DueTypeAmts)
+    UTF.addParam(DueProps)
+    UTF.addParam(DuePropAmts)
+    UTF.addParam(DueOuts)
+    ParticipantDetails = ''
+    UTF.addParam(ParticipantDetails)
+    ParticipantPropertyAmounts = ''
+    UTF.addParam(ParticipantPropertyAmounts)
+    ParticipantOutstandingAmounts = ''
+    UTF.addParam(ParticipantOutstandingAmounts)
+    ParticipantSkimProps = ''
+    UTF.addParam(ParticipantSkimProps)
+    DueBillTypesList = ''
+    UTF.addParam(DueBillTypesList)
+    Reserved1 = ''
+    UTF.addParam(Reserved1)
+    Reserved2 = ''
+    UTF.addParam(Reserved2)
+    Reserved3 = ''
+    UTF.addParam(Reserved3)
+    Reserved4 = ''
+    UTF.addParam(Reserved4)
+    
+    ArrRec<AA.Framework.Arrangement.ArrLeaseType> = "OPERATING"
+    AA.Framework.setRArrangement(ArrRec)
+
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+END

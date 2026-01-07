@@ -1,0 +1,591 @@
+TESTCASE AA.PROJECT.PAYMENT.SCHEDULE.SCHEDULES_136
+*-----------------------------------------------------------------------------
+* @author     :  johnson@temenos.com
+*-----------------------------------------------------------------------------
+*
+*   Modification History :
+*
+* 06/12/25 - Enhancement : CCCRT-4085
+*            Task        : CCCRT-7636
+*            When the payment type is Interest-Only and the payment method is Capitalise for an asset finance arrangement contract,
+*            The interest amount is deducted from the outstanding amount instead of being added.
+*
+*-----------------------------------------------------------------------------
+**** <region = "Inserts" >
+*Inserts using in the test case
+*
+    $USING AA.PaymentSchedule
+    $USING AA.Framework
+    $USING EB.SystemTables
+    $USING AA.Account
+    $USING AA.ProductFramework
+    $USING AA.Interest
+    $USING AF.Framework
+    
+*
+**** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Main Test flow>
+*** <desc> </desc>
+
+
+    UTF.setTarget("AA.PROJECT.PAYMENT.SCHEDULE.SCHEDULES")                    ;* Name of the Target routine for which test is done
+    
+    GOSUB EvaluateTestCase   ;* To check The interest amounts are added to the Oustanding amounts if Payment method is capitalise
+
+RETURN
+**** </region>
+*-----------------------------------------------------------------------------
+** <region name= Evaluation Test Case 1>
+*** <desc>First test case evaluation</desc>
+EvaluateTestCase:
+
+    Description = "The interest amount should be added to the Oustanding amounts if Payment method is capitalise"
+    UTF.setDescription(Description)
+
+    GOSUB setBaseDetails    ;* Set the cache content and any commons that need to be set before invoking the method
+    GOSUB setParams        ;* To set the parameters required for the method
+    GOSUB defineStubs       ;* Define the stubs for the called methods inside the target routine
+    GOSUB executeTest       ;* All set. Now execute the method
+    GOSUB setTestResults    ;* Set the executed expected values of the test
+    GOSUB defineAssertions
+
+RETURN
+**** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Set the base records and commons>
+*** <desc> </desc>
+setBaseDetails:
+
+    Arrangement.Id = "AA093656TWTY"
+    EB.SystemTables.setToday("20091223")
+    AF.Framework.setActivityEffDate("20091201")
+    AF.Framework.setCurrAction("RECEIVABLE")
+    AA.Framework.setLinkedAccount("02000000292")
+
+    GOSUB setArrangemenRecord ;* Set the arrangement record to load the arrangement common
+    AA.Framework.setRArrangement(ArrangemenRecord)
+
+    GOSUB setAccountDetailsArray  ;* Set the account details record to load the account details common
+    AA.Framework.setAccountDetails(AccountDetailsArray)
+
+RETURN
+**** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Set the base records and commons>
+*** <desc> </desc>
+setArrangemenRecord:
+
+*** Set arrangemnet record currency, start date and product line field values.
+    ArrangemenRecord<AA.Framework.Arrangement.ArrCurrency> = "USD"
+    ArrangemenRecord<AA.Framework.Arrangement.ArrStartDate> = "20091201"
+    ArrangemenRecord<AA.Framework.Arrangement.ArrProductLine> = "ASSET.FINANCE"
+    ArrangemenRecord<AA.Framework.Arrangement.ArrLeaseType> = "FINANCE"
+
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Set the account details records >
+*** <desc> </desc>
+setAccountDetailsArray:
+
+*** Set Account details Date related field values
+    AccountDetailsArray<AA.PaymentSchedule.AccountDetails.AdContractDate> = "20091201"
+    AccountDetailsArray<AA.PaymentSchedule.AccountDetails.AdValueDate> = "20091201"
+    AccountDetailsArray<AA.PaymentSchedule.AccountDetails.AdStartDate> = ""
+    AccountDetailsArray<AA.PaymentSchedule.AccountDetails.AdPaymentStartDate> = "20091203"
+    AccountDetailsArray<AA.PaymentSchedule.AccountDetails.AdMaturityDate> = "20100101"
+    AccountDetailsArray<AA.PaymentSchedule.AccountDetails.AdBaseDate> = "20091201"
+
+*** Set Account details schedule payment date related field values for account property
+
+    AccountDetailsArray<AA.PaymentSchedule.AccountDetails.AdPaymentEndDate> = "20091223"
+
+
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Set parameters for target method>
+*** <desc>parameters for target method</desc>
+setParams:
+
+*** AA.PaymentSchedule.BuildPaymentScheduleSchedules(ScheduleInfo, ReqdEndDate, NoCycles, AdjustFinalAmount, PaymentDates, PaymentTypes, PaymentMethods, PaymentAmounts, PaymentProperties,
+*** PaymentPropertiesAmt, TaxDetails, OutstandingAmount, FinalPrincipalPos, PaymentPercentages, PaymentMinAmounts, PaymentDeferDates, PaymentBillTypes, ChargeAdjustmentInfo, RetError)
+
+* Set the arguments used in the AA.PaymentSchedule.BuildPaymentScheduleSchedules routine
+
+
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsActivity> = "ASSET.FINANCE-NEW-ARRANGEMENT"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsAction> = "UPDATE"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsPaymentType> = "INTEREST.ONLY"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsPaymentMethod> = "CAPITALISE"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsPaymentFreq> = "e0Y e0M e0W e20D e0F"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsDueFreq> = "e0Y e0M e0W e20D e0F"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsProperty> = "LEASEINT"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsStartDate> = "R_START + 2D"
+    RPaymentScheduleRecord<AA.PaymentSchedule.PaymentSchedule.PsBillType> = "PAYMENT"
+    
+    
+    ScheduleInfo = ''
+    ScheduleInfo<1> = Arrangement.Id
+    ScheduleInfo<2> = "20091223"
+    ScheduleInfo<3> = "ASFPAYSCHED"
+    ScheduleInfo<4> = LOWER(RPaymentScheduleRecord)
+    ScheduleInfo<30> = "1"
+
+    ScheduleInfo<79> = "LEASEINT"
+    UTF.addParam(ScheduleInfo)
+    ReqdEndDate = '20100105'
+    UTF.addParam(ReqdEndDate)
+    NoCycles = ''
+    UTF.addParam(NoCycles)
+    AdjustFinalAmount = '1'
+    UTF.addParam(AdjustFinalAmount)
+    PaymentDates = ''
+    UTF.addParam(PaymentDates)
+    PaymentTypes = ''
+    UTF.addParam(PaymentTypes)
+    PaymentMethods = ''
+    UTF.addParam(PaymentMethods)
+    PaymentAmounts = ''
+    UTF.addParam(PaymentAmounts)
+    PaymentProperties = ''
+    UTF.addParam(PaymentProperties)
+    PaymentPropertiesAmt = ''
+    UTF.addParam(PaymentPropertiesAmt)
+    TaxDetails = ''
+    UTF.addParam(TaxDetails)
+    OutstandingAmount = ''
+    UTF.addParam(OutstandingAmount)
+    FinalPrincipalPos = ''
+    UTF.addParam(FinalPrincipalPos)
+    PaymentPercentages = ''
+    UTF.addParam(PaymentPercentages)
+    PaymentMinAmounts = ''
+    UTF.addParam(PaymentMinAmounts)
+    PaymentDeferDates = ''
+    UTF.addParam(PaymentDeferDates)
+    PaymentBillTypes = ''
+    UTF.addParam(PaymentBillTypes)
+    ChargeAdjustmentInfo = ''
+    UTF.addParam(ChargeAdjustmentInfo)
+    ParticipantDetails = ''
+    UTF.addParam(ParticipantDetails)
+    PartPaymentProperties = ''
+    UTF.addParam(PartPaymentProperties)
+    ParticipantPropAmt = ''
+    UTF.addParam(ParticipantPropAmt)
+    ParticipantTaxDetails = ''
+    UTF.addParam(ParticipantTaxDetails)
+    ParticipantOutAmt = ''
+    UTF.addParam(ParticipantOutAmt)
+    ParticipationTypes = ''
+    UTF.addParam(ParticipationTypes)
+    UTF.addParam('')
+    UTF.addParam('')
+    RetError = ''
+    UTF.addParam(RetError)
+
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Define the stubs for methods inside target>
+*** <desc> </desc>
+defineStubs:
+
+*** Stub to set the account and interest processing property values
+*** AA.ProductFramework.GetPropertyName(ProductRecord, PropertyClass, Property)
+    IntProperties = "LEASEINT":@FM:"LEASEMARGIN"
+
+    STUB.INT = UTF.addStub("AA.ProductFramework.GetPropertyName")
+    UTF.addStubParam(STUB.INT, UTF.any(), UTF.same()) ;* ProductRecord
+    UTF.addStubParam(STUB.INT, "INTEREST", UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(STUB.INT, "",IntProperties) ;*  Property
+
+    ActProperty = "ASFACCOUNT"
+
+    STUB.ACT = UTF.addStub("AA.ProductFramework.GetPropertyName")
+    UTF.addStubParam(STUB.ACT, UTF.any(), UTF.same()) ;* ProductRecord
+    UTF.addStubParam(STUB.ACT, "ACCOUNT", UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(STUB.ACT, "",ActProperty) ;*  Property
+    
+    
+    STUB.ANY = UTF.addStub("AA.ProductFramework.GetPropertyName")
+    UTF.addStubParam(STUB.ANY, UTF.any(), UTF.same()) ;* ProductRecord
+    UTF.addStubParam(STUB.ANY, UTF.any(), UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(STUB.ANY, UTF.any(),UTF.same()) ;*  Property
+    
+    
+* AA.ProductFramework.GetPropertyName(PRODUCT.RECORD, "TERM.AMOUNT", TERM.AMT.PROPERTY)
+    
+    STUB.ANY = UTF.addStub("AA.ProductFramework.GetPropertyName")
+    UTF.addStubParam(STUB.ANY, UTF.any(), UTF.same()) ;* ProductRecord
+    UTF.addStubParam(STUB.ANY, "TERM.AMOUNT", UTF.same()) ;*  PropertyClass
+    UTF.addStubParam(STUB.ANY, UTF.any(),"ASFTERMAMOUNT") ;*  Property
+    
+
+*** Stub to set calculation and process types
+*** AA.PaymentSchedule.GetCalcType(PaymentTypes, CalcTypes, ProcessTypes, ExtendCycles)
+    CalcTypes = "ACTUAL"
+    ProcessTypes = "CALCULATED"
+
+    STUB.1 = UTF.addStub("AA.PaymentSchedule.GetCalcType")
+    UTF.addStubParam(STUB.1, UTF.any(), UTF.same()) ;* PaymentTypes
+    UTF.addStubParam(STUB.1, "", CalcTypes) ;*  CalcTypes
+    UTF.addStubParam(STUB.1, "", ProcessTypes) ;*  ProcessTypes
+    UTF.addStubParam(STUB.1, UTF.any(), UTF.same()) ;*  ExtendCycles
+    UTF.setRepeatable(STUB.1)
+
+*** Stub to set the account and interest processing property class values
+*** AA.ProductFramework.GetPropertyClass(Property, PropertyClass)
+    Property = "LEASEINT"
+    PropertyClass =  "INTEREST"
+
+    STUB.2 = UTF.addStub("AA.ProductFramework.GetPropertyClass")
+    UTF.addStubParam(STUB.2, Property, UTF.same()) ;* Property
+    UTF.addStubParam(STUB.2, "",PropertyClass) ;*  PropertyClass
+
+*** Stub to set the payment dates, payment types, payment methods, payment amounts, payment properties and payment bill types values
+*** AA.PaymentSchedule.BuildPaymentScheduleDates(ScheduleInfo, StartDate, EndDate, NoCycles, TermRecalcDetails, PaymentDates, PaymentActualDates, PaymentFinDates
+*** PaymentTypes, PaymentMethods, PaymentAmounts, PaymentProperties, PaymentPercentages, PaymentMinAmount, PaymentDeferDates, PaymentBillType, RetError)
+    DPaymentDates = "20091201":@FM:"20091203":@FM:"20091223"
+    DPaymentTypes = "":@FM:"INTEREST.ONLY":@FM:"INTEREST.ONLY"
+    DPaymentMethods = "":@FM:"CAPITALISE":@FM:"CAPITALISE"
+    DPaymentAmounts = "":@FM:"":@FM:""
+    DPaymentProperties = "":@FM:"LEASEINT":@FM:"LEASEINT"
+    DPaymentBillType = "":@FM:"PAYMENT":@FM:"PAYMENT"
+
+    STUB.3 = UTF.addStub("AA.PaymentSchedule.ProjectPaymentScheduleDates")
+    UTF.addStubParam(STUB.3, ScheduleInfo, UTF.same()) ;* ScheduleInfo
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  StartDate
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  EndDate
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  NoCycles
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  TermRecalcDetails
+    UTF.addStubParam(STUB.3, "", DPaymentDates) ;*  PaymentDates
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  PaymentActualDates
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  PaymentFinDates
+    UTF.addStubParam(STUB.3, "", DPaymentTypes) ;*  PaymentTypes
+    UTF.addStubParam(STUB.3, "", DPaymentMethods) ;*  PaymentMethods
+    UTF.addStubParam(STUB.3, "", DPaymentAmounts) ;*  PaymentAmounts
+    UTF.addStubParam(STUB.3, "", DPaymentProperties) ;*  PaymentProperties
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  PaymentPercentages
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  PaymentMinAmount
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  PaymentDeferDates
+    UTF.addStubParam(STUB.3, "", DPaymentBillType) ;*  PaymentBillType
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*
+    UTF.addStubParam(STUB.3, UTF.any(), UTF.same()) ;*  RetError
+
+*** Stub to set calculated interest property amount
+*** AA.Interest.CalcInterest(ContractId, Property, PropertyExtension, RecordStartDate, PeriodStartDate, PeriodEndDate, RAccrualData, CommittedInt, NewCommittedInt, AdditionalInfo, RetError)
+    CommittedInt = "55.56"
+
+    STUB.4 = UTF.addStub("AA.Interest.CalcInterest")
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;* ContractId
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  Property
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  PropertyExtension
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  RecordStartDate
+    UTF.addStubParam(STUB.4, "20091201", UTF.same()) ;*  PeriodStartDate
+    UTF.addStubParam(STUB.4, "20091203", UTF.same()) ;*  PeriodEndDate
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  RAccrualData
+    UTF.addStubParam(STUB.4, "",CommittedInt) ;*  CommittedInt
+    UTF.addStubParam(STUB.4, "0",CommittedInt) ;*  NewCommittedInt
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  AdditionalInfo
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  RetError
+    
+    
+    
+*** AA.Interest.CalcInterest(ContractId, Property, PropertyExtension, RecordStartDate, PeriodStartDate, PeriodEndDate, RAccrualData, CommittedInt, NewCommittedInt, AdditionalInfo, RetError)
+    CommittedInt = "555.25"
+
+    STUB.4 = UTF.addStub("AA.Interest.CalcInterest")
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;* ContractId
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  Property
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  PropertyExtension
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  RecordStartDate
+    UTF.addStubParam(STUB.4, "20091203", UTF.same()) ;*  PeriodStartDate
+    UTF.addStubParam(STUB.4, "20091223", UTF.same()) ;*  PeriodEndDate
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  RAccrualData
+    UTF.addStubParam(STUB.4, "",CommittedInt) ;*  CommittedInt
+    UTF.addStubParam(STUB.4, "0",CommittedInt) ;*  NewCommittedInt
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  AdditionalInfo
+    UTF.addStubParam(STUB.4, UTF.any(), UTF.same()) ;*  RetError
+    
+
+*** Stub to set account property outstanding balance
+*** AA.Framework.GetPeriodBalances(ContractId, BalanceToCheck, RequestType, StartDate, EndDate, SystemDate, BalDetails, ErrorMessage)
+    BalDetails<4> = "-100000"
+
+    STUB.5 = UTF.addStub("AA.Framework.GetPeriodBalances")
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;* AccountId
+    UTF.addStubParam(STUB.5, "CURASFTERMAMOUNT", UTF.same()) ;*  BalanceToCheck
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB.5, "20091201", UTF.same()) ;*  StartDate
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  EndDate
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  SystemDate
+    UTF.addStubParam(STUB.5, "", BalDetails) ;*  BalDetails
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  ErrorMessage
+    UTF.setRepeatable(STUB.5)
+    
+    
+    
+    
+    STUB.5 = UTF.addStub("AA.Framework.GetPeriodBalances")
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;* AccountId
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  BalanceToCheck
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  StartDate
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  EndDate
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  SystemDate
+    UTF.addStubParam(STUB.5, "", UTF.any()) ;*  BalDetails
+    UTF.addStubParam(STUB.5, UTF.any(), UTF.same()) ;*  ErrorMessage
+
+*** Stub to set payment schedule record payment type field values
+*** AA.PaymentSchedule.BuildPaymentScheduleRecord(ScheduleInfo, ArrangementId, PropertyDate, Property, RPaymentSchedule, RetError)
+   
+
+    STUB.6 = UTF.addStub("AA.PaymentSchedule.BuildPaymentScheduleRecord")
+    UTF.addStubParam(STUB.6, UTF.any(), UTF.same()) ;* ScheduleInfo
+    UTF.addStubParam(STUB.6, UTF.any(), UTF.same()) ;*  ArrangementId
+    UTF.addStubParam(STUB.6, UTF.any(), UTF.same()) ;*  PropertyDate
+    UTF.addStubParam(STUB.6, UTF.any(), UTF.same()) ;*  Property
+    UTF.addStubParam(STUB.6,"",RPaymentScheduleRecord) ;*  RPaymentSchedule
+    UTF.addStubParam(STUB.6, UTF.any(), UTF.same()) ;*  RetError
+    
+    
+*AA.Framework.GetSourceBalanceType(PROPERTY, '', '', BALANCE.TYPE, READ.ERR)
+    
+    STUB = UTF.addStub("AA.Framework.GetSourceBalanceType")
+    UTF.addStubParam(STUB, "LEASEINT", UTF.same()) ;* Property
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  Product
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  Product record
+    UTF.addStubParam(STUB, UTF.any(), "DEBIT") ;*  Source balance type
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  Error flag
+    
+    
+
+    STUB = UTF.addStub("AA.PaymentSchedule.GetLastPaymentDate")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PaymentTypes
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  Property
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  LastPaymentDate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  LastPaymentActualDate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  LastPaymentFinDate
+    UTF.addStubParam(STUB, UTF.any(), PropertyRecords) ;*  RetError
+    
+    
+    STUB = UTF.addStub("AA.PaymentSchedule.GetLastPaymentDate")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* ArrangementId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PaymentTypes
+    UTF.addStubParam(STUB, "LEASEINT", UTF.same()) ;*  Property
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  LastPaymentDate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  LastPaymentActualDate
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  LastPaymentFinDate
+    UTF.addStubParam(STUB, UTF.any(), UTF.any()) ;*  RetError
+    
+* AA.Interest.GetInterestLastDate(ARRANGEMENT.ID, PAYMENT.PROPERTY,"","", PERIOD.START.DATE)
+
+
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  Arrangement ID
+    UTF.addStubParam(STUB, "LEASEINT", UTF.same()) ;*  Property
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  RequestType
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  LastPaymentDate
+    UTF.addStubParam(STUB, UTF.any(), "20091201") ;*  LastPaymentActualDate
+    
+      
+      
+* AA.Interest.GetInterestAccruals("VAL", ARRANGEMENT.ID, INT.PAYMENT.PROPERTY, "", NEW.ACCRUAL.DATA, R.ACCRUAL.DETAILS, "", EXTENSION.NAME)
+
+    RAccrualDetails = ""
+    RAccrualDetails<AA.Interest.InterestAccruals.IntAccPeriodStart> = "20091201"
+    RAccrualDetails<AA.Interest.InterestAccruals.IntAccPeriodEnd> = "20091203"
+    RAccrualDetails<AA.Interest.InterestAccruals.IntAccIntEffDate> = "20091201"
+
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Process Mode
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  Arrangement ID
+    UTF.addStubParam(STUB, "LEASEINT", UTF.same()) ;*  Property
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Accrual Details
+    UTF.addStubParam(STUB, UTF.any(), RAccrualDetails) ;* Interest Accrual details
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Extension Name
+                     
+    STUBNEW = UTF.addStub("AA.PaymentSchedule.GetSysBillType")
+    UTF.addStubParam(STUBNEW, UTF.any(), UTF.same())
+    UTF.addStubParam(STUBNEW, "", "PAYMENT")
+    UTF.addStubParam(STUBNEW, "", UTF.same())
+    UTF.setRepeatable(STUBNEW)
+
+    STUB = UTF.addStub("AA.PaymentSchedule.GetPropertyDetailsPaySchedule")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* PaymentScheduleRec
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PaymentType
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PaymentProperty
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  PaymentFreq
+    UTF.addStubParam(STUB, UTF.any(), "PAYMENT") ;*  PayBillType
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  ProgressRate
+    UTF.setRepeatable(STUB)
+    
+    PropertyRecords = ''
+    PropertyRecords = "":@FM:LOWER(RPaymentScheduleRecord)
+    DDPaymentDates = "20091201":@FM:"20100101"
+    
+    STUB = UTF.addStub("AA.Framework.BuildPropertyRecords")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* ContractId
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*  Property
+    UTF.addStubParam(STUB, "PAYMENT.SCHEDULE", UTF.same()) ;*  Propertyclass
+    UTF.addStubParam(STUB, UTF.any(), DDPaymentDates) ;*  PropertyDates
+    UTF.addStubParam(STUB, UTF.any(), PropertyRecords) ;*  PropertyRecords
+    
+    
+* AA.ChargeOff.GetChargeoffDetails(ARRANGEMENT.ID, "", CHARGEOFF.DATE, "", FULL.CHARGEOFF.STATUS) ;* check chargeoff flag for phase2 processing
+    STUB = UTF.addStub("AA.ChargeOff.GetChargeoffDetails")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    
+    STUB = UTF.addStub("AA.Framework.GetSystemDate")
+    UTF.addStubParam(STUB, UTF.any(), "20091223")
+    
+* AA.Framework.LoadStaticData
+    
+    
+    STUB = UTF.addStub("AA.Framework.LoadStaticData")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    
+    
+* AA.Framework.LoadStaticData
+    
+    RPaymentType =""
+    RPaymentType<AA.PaymentSchedule.PaymentType.PtCalcType> = "ACTUAL"
+    RPaymentType<AA.PaymentSchedule.PaymentType.PtType> = "CALCULATED"
+    STUB = UTF.addStub("AA.Framework.LoadStaticData")
+    UTF.addStubParam(STUB, "F.AA.PAYMENT.TYPE", UTF.same())
+    UTF.addStubParam(STUB, "INTEREST.ONLY", UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), RPaymentType)
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    
+    
+* AA.Framework.LoadStaticData("F.AA.PROPERTY", PAYMENT.PROPERTY, R.PROPERTY, "")
+   
+    InterestRecord = ""
+    InterestRecord<AA.ProductFramework.Property.PropPropertyClass> = "INTEREST"
+    InterestRecord<AA.ProductFramework.Property.PropPropertyType> = "RECEIVABLE.ACCOUNTING":@VM:"PRINCIPAL.RECEIVABLE"
+  
+   
+    STUB = UTF.addStub("AA.Framework.LoadStaticData")
+    UTF.addStubParam(STUB, "F.AA.PROPERTY", UTF.same())
+    UTF.addStubParam(STUB, "LEASEINT", UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), InterestRecord)
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    
+    
+* AA.ProductFramework.GetPropertyRecord
+    
+    STUB = UTF.addStub("AA.ProductFramework.GetPropertyRecord")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Arrangement ID
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Property ID
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Property Date
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ; * Property class
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ; * Property Record
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Error Flag
+
+    
+* AA.ProductFramework.GetPropertyRecord
+    RPropertyAccountRecord = ''
+    RPropertyAccountRecord<AA.Account.Account.AcDateConvention> = "FORWARD"
+    RPropertyAccountRecord<AA.Account.Account.AcDateAdjustment> = "VALUE"
+    RPropertyAccountRecord<AA.Account.Account.AcBusDayCentres> = "US"
+    
+    STUB = UTF.addStub("AA.ProductFramework.GetPropertyRecord")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Arrangement ID
+    UTF.addStubParam(STUB, "ASFACCOUNT", UTF.same()) ;* Property ID
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Property Date
+    UTF.addStubParam(STUB, "ACCOUNT", UTF.same()) ; * Property class
+    UTF.addStubParam(STUB, UTF.any(), UTF.same())
+    UTF.addStubParam(STUB, UTF.any(), RPropertyAccountRecord) ; * Property Record
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;* Error Flag
+  
+* AA.Framework.CheckBaseBalance(TERM.AMT.PROPERTY, ACCOUNT.PROPERTY, BALANCE.PROPERTY)
+    
+    STUB = UTF.addStub("AA.Framework.CheckBaseBalance")
+    UTF.addStubParam(STUB, "ASFTERMAMOUNT", UTF.same())
+    UTF.addStubParam(STUB, "ASFACCOUNT", UTF.same()) ;* Arrangement ID
+    UTF.addStubParam(STUB, UTF.any(), "ASFTERMAMOUNT") ;* Property ID
+    
+* AA.ProductFramework.PropertyGetBalanceName(ARRANGEMENT.ID, BALANCE.PROPERTY, LIFECYCLE.STATUS, "", "BANK", BALANCE.TO.CHECK)
+    
+    
+    STUB = UTF.addStub("AA.ProductFramework.PropertyGetBalanceName")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same());* Arrangement ID
+    UTF.addStubParam(STUB, "ASFTERMAMOUNT", UTF.same()) ;* Property ID
+    UTF.addStubParam(STUB, "CUR", UTF.same()) ;* Life cycle status
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ; * Bank
+    UTF.addStubParam(STUB, UTF.any(), "CURASFTERMAMOUNT") ;* Balance type
+    UTF.setRepeatable(STUB)
+    
+    
+    
+    STUB = UTF.addStub("AA.ProductFramework.PropertyGetBalanceName")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same());* Arrangement ID
+    UTF.addStubParam(STUB, "ASFTERMAMOUNT", UTF.same()) ;* Property ID
+    UTF.addStubParam(STUB, "TOT", UTF.same()) ;* Life cycle status
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ; * Bank
+    UTF.addStubParam(STUB, UTF.any(), "TOTASFTERMAMOUNT") ;* Balance type
+    
+    
+    STUB = UTF.addStub("AA.ProductFramework.PropertyGetBalanceName")
+    UTF.addStubParam(STUB, UTF.any(), UTF.same());* Arrangement ID
+    UTF.addStubParam(STUB, "ASFACCOUNT", UTF.same()) ;* Property ID
+    UTF.addStubParam(STUB, "CUR", UTF.same()) ;* Life cycle status
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ;*
+    UTF.addStubParam(STUB, UTF.any(), UTF.same()) ; * Bank
+    UTF.addStubParam(STUB, UTF.any(), "CURASFACCOUNT") ;* Balance type
+    
+    
+    UTF.ignoreMissingStubs()
+
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+
+*** <region name= Execute the test>
+*** <desc> </desc>
+executeTest:
+
+    UTF.runTest()
+
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Ser Test Results>
+*** <desc> Define the expected results</desc>
+setTestResults:
+
+    
+    TR.OutstandingAmount = "100000":@FM:"100055.56":@FM:"100610.81"
+    
+RETURN
+*** </region>
+*-----------------------------------------------------------------------------
+*** <region name= Define assertions>
+*** <desc>Test case assertions</desc>
+defineAssertions:
+*
+    UTF.assertEquals(OutstandingAmount,TR.OutstandingAmount)  ;* Match the expected payment properties against return payment properties argument
+   
+RETURN
+
+*** </region>
+*-----------------------------------------------------------------------------
+END
