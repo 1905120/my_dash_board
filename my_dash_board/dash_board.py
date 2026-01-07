@@ -4,6 +4,7 @@ from common import DEFAULT_OPTIONS, TABLES_DIR, CURRENT_FILE,JIRA_CACHE_PATH, BI
 from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, CDM_move_to_archive_defect_details, CDM_move_to_current_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, update_available_all_table_for_create_ofs_module
 import subprocess
 import sys
+import re
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
@@ -691,14 +692,13 @@ def get_field_names(app_type, property_class):
                 if isinstance(fields, list):
                     #field_names = [{"value": f, "label": f} for f in fields]
                     for each_field_name in fields:
-                        c = 0
-                        field_name = ""
-                        for each_char in each_field_name.split("."):
-                            if c >= 2:
-                                field_name += f'{each_char}.'
-                            c += 1
+                        field_name = re.sub(r'.*(\([^)]+\))', r'\1', each_field_name)
+                        field_name = field_name.replace("(", "")
+                        field_name = field_name.replace(")", "")
+                        first_occurence_dot = field_name.find(".")
+                        second_occurence_dot = field_name.find(".", first_occurence_dot + 1)
                         if field_name:
-                            field_names.append({"value": field_name[:-1], "label": field_name[:-1]})
+                            field_names.append({"value": field_name[second_occurence_dot + 1:], "label": field_name[second_occurence_dot + 1:]})
                 elif isinstance(fields, dict):
                     field_names = [{"value": k, "label": k} for k in fields.keys()]
             # Otherwise use all keys from the JSON
