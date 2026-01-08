@@ -92,7 +92,8 @@
         "LimCurrOdDays(AA.LIM.CURR.OD.DAYS)": "90",
         "LimLastOdFeeDate(AA.LIM.LAST.OD.FEE.DATE)": "91",
         "LimFixedVariable(AA.LIM.FIXED.VARIABLE)": "92",
-        "LimReserved1(AA.LIM.RESERVED1)": "93"
+        "LimReserved1(AA.LIM.RESERVED1)": "93",
+        "LimCounterPartyLimit(AA.LIM.COUNTER.PARTY.LIMIT)": "94"
     },
     "t24": "AA.PRD.DES.LIMIT"
 }
