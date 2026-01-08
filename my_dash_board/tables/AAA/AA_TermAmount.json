@@ -95,7 +95,8 @@
         "AmtCashflowNetting(AA.AMT.CASHFLOW.NETTING)": "93",
         "AmtNetSettlementActivity(AA.AMT.NET.SETTLEMENT.ACTIVITY)": "94",
         "AmtCommitmentOverdrawnAmount(AA.AMT.COMMITMENT.OVERDRAWN.AMOUNT)": "95",
-        "AmtCommitmentOverdrawnPercent(AA.AMT.COMMITMENT.OVERDRAWN.PERCENT)": "96"
+        "AmtCommitmentOverdrawnPercent(AA.AMT.COMMITMENT.OVERDRAWN.PERCENT)": "96",
+        "AmtInvoiceFaceValue(AA.AMT.INVOICE.FACE.VALUE)": "97"
     },
     "t24": "AA.PRD.DES.TERM.AMOUNT"
 }
