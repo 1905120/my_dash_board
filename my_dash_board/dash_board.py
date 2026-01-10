@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, abort, request
 import os, json
 from common import DEFAULT_OPTIONS, TABLES_DIR, CURRENT_FILE,JIRA_CACHE_PATH, BITBUCKET_CACHE_PATH
-from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, CDM_move_to_archive_defect_details, CDM_move_to_current_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, update_available_all_table_for_create_ofs_module
+from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, update_available_all_table_for_create_ofs_module, CDM_move_defect_details
 import subprocess
 import sys
 import re
@@ -403,6 +403,7 @@ def api_items():
 
 @app.route("/api/defects")
 def get_defect_list():
+    tempview_type = request.args.get("type")
     view_type = request.args.get("type", "current")  # current is default
     result = CDM_get_all_defect_details(view_type)
     if result["err"]:
@@ -454,7 +455,7 @@ def CDM_delete_defects():
 @app.route('/api/cdm/archive_defect', methods=["POST"])
 def CDM_archive_defects():
     data = json.loads(request.data)
-    porcess_msg = CDM_move_to_archive_defect_details(data['ids'], data['viewType'])
+    porcess_msg = CDM_move_defect_details(data['ids'], data['viewType'], "archived")
     if porcess_msg["err"]:
        return jsonify({
             "status": "error",
@@ -470,7 +471,7 @@ def CDM_archive_defects():
 @app.route('/api/cdm/move_current', methods=["POST"])
 def CDM_mode_current_defects():
     data = json.loads(request.data)
-    porcess_msg = CDM_move_to_current_defect_details(data['ids'], data['viewType'])
+    porcess_msg = CDM_move_defect_details(data['ids'], data['viewType'], "current")
     if porcess_msg["err"]:
        return jsonify({
             "status": "error",
@@ -483,6 +484,22 @@ def CDM_mode_current_defects():
             "message": "Defect Created SuccessFully",
             "data": []}), 200
 
+@app.route('/api/cdm/move_to_new', methods=["POST"])
+def CDM_move_to_new_defects():
+    data = json.loads(request.data)
+    porcess_msg = CDM_move_defect_details(data['ids'], data['viewType'], "new")
+    if porcess_msg["err"]:
+       return jsonify({
+            "status": "error",
+            "message": porcess_msg["err"],
+            "data": []
+        }), 500
+    else:
+        return jsonify({
+            "status": "success",
+            "message": "Defect Created SuccessFully",
+            "data": []}), 200
+    
 @app.route('/api/cdm/edit_defect', methods=["POST"])
 def CDM_edit_defects():
     data = json.loads(request.data)

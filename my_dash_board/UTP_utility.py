@@ -280,7 +280,8 @@ class UTPConversion:
         list_of_dir = os.listdir(Jar_Path)
         with alive_bar(len(list_of_dir), bar='classic', spinner='classic') as bar:
           for Jar in list_of_dir:
-            shutil.copy(f'{Jar_Path}\\{Jar}', Jars_In_t24Lib)
+            if os.path.isfile(f'{Jar_Path}\\{Jar}'):
+                shutil.copy(f'{Jar_Path}\\{Jar}', Jars_In_t24Lib)
             bar()
         os.chdir(Command_Window)
         os.system(Command_To_Gen_Module_Xml)

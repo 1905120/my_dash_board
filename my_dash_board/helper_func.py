@@ -1,4 +1,4 @@
-from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH, CREATE_OFS_TABLES_PATH
+from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH, CREATE_OFS_TABLES_PATH, CDM_NEW_DEFECTS_DIR
 import os
 import json
 import shutil
@@ -75,6 +75,10 @@ def CDM_get_required_dir(_type):
         if not os.path.exists(CDM_CURRENT_DEFECTS_DIR):
             CDM_create_dir(CDM_CURRENT_DEFECTS_DIR)
         Dir = CDM_CURRENT_DEFECTS_DIR
+    elif _type == "new":
+        if not os.path.exists(CDM_NEW_DEFECTS_DIR):
+            CDM_create_dir(CDM_NEW_DEFECTS_DIR)
+        Dir = CDM_NEW_DEFECTS_DIR
     elif _type == "archived":
         if not os.path.exists(CDM_ARCHIVED_DEFECTS_DIR):
             CDM_create_dir(CDM_ARCHIVED_DEFECTS_DIR)
@@ -154,32 +158,18 @@ def CDM_update_defect_details(updated_defect_details, view_type):
     return CDM_BUSSINESS_PROCESS_RESULT
 
 
-def CDM_move_to_archive_defect_details(defects_ids, view_type):
+def CDM_move_defect_details(defects_ids, from_view_type, to_view_type):
     CDM_BUSSINESS_PROCESS_RESULT["err"] = ""
-    current_defect_path = CDM_get_required_dir("current")
-    archive_defect_path = CDM_get_required_dir("archived")
-    current_defect_details = read_file(f'{current_defect_path}\\defect_details.json', "json")
-    archive_defect_details = read_file(f'{archive_defect_path}\\defect_details.json', "json")
+    from_defect_path = CDM_get_required_dir(from_view_type)
+    to_defect_path = CDM_get_required_dir(to_view_type)
+    from_defect_details = read_file(f'{from_defect_path}\\defect_details.json', "json")
+    to_defect_details = read_file(f'{to_defect_path}\\defect_details.json', "json")
     for defect_id in defects_ids:
-        archive_defect_details[defect_id] = current_defect_details[defect_id]
-        if defect_id in current_defect_details:
-            del current_defect_details[defect_id]
-    write_json_file(f'{current_defect_path}\\defect_details.json', current_defect_details)
-    write_json_file(f'{archive_defect_path}\\defect_details.json', archive_defect_details)
-    return CDM_BUSSINESS_PROCESS_RESULT
-
-def CDM_move_to_current_defect_details(defects_ids, view_type):
-    CDM_BUSSINESS_PROCESS_RESULT["err"] = ""
-    current_defect_path = CDM_get_required_dir("current")
-    archive_defect_path = CDM_get_required_dir("archived")
-    current_defect_details = read_file(f'{current_defect_path}\\defect_details.json', "json")
-    archive_defect_details = read_file(f'{archive_defect_path}\\defect_details.json', "json")
-    for defect_id in defects_ids:
-        current_defect_details[defect_id] = archive_defect_details[defect_id]
-        if defect_id in archive_defect_details:
-            del archive_defect_details[defect_id]
-    write_json_file(f'{current_defect_path}\\defect_details.json', current_defect_details)
-    write_json_file(f'{archive_defect_path}\\defect_details.json', archive_defect_details)
+        if defect_id in from_defect_details:
+            to_defect_details[defect_id] = from_defect_details[defect_id]
+            del from_defect_details[defect_id]
+    write_json_file(f'{from_defect_path}\\defect_details.json', from_defect_details)
+    write_json_file(f'{to_defect_path}\\defect_details.json', to_defect_details)
     return CDM_BUSSINESS_PROCESS_RESULT
 
 def CDM_delete_defect_details(defects_ids, view_type):
@@ -236,10 +226,6 @@ def manage_utp(file_path, Option, deployment_opt):
     return ""
 
 def get_available_run_tag(repo, project, list_of_tags):
-    input_proj ,input_repos, list_of_tags, file_ptr = Process_Bitbucket_Details(project, repo, list_of_tags)
-    return list_of_tags, file_ptr
-
-def get_bitbucket_extracted_data(repo, project, list_of_tags):
     input_proj ,input_repos, list_of_tags, file_ptr = Process_Bitbucket_Details(project, repo, list_of_tags)
     return list_of_tags, file_ptr
 
