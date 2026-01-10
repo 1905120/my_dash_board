@@ -403,7 +403,6 @@ def api_items():
 
 @app.route("/api/defects")
 def get_defect_list():
-    tempview_type = request.args.get("type")
     view_type = request.args.get("type", "current")  # current is default
     result = CDM_get_all_defect_details(view_type)
     if result["err"]:
