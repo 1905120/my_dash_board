@@ -870,6 +870,7 @@ const cancelAmendBtn = document.querySelector(".cancenlAmend");
 const deleteDefectBtn = document.querySelector(".deleteDefectBtn");
 const archiveDefectBtn = document.querySelector(".archiveDefectBtn");
 const moveCurrentBtn = document.querySelector(".moveCurrentBtn");
+const moveNewBtn = document.querySelector(".moveNewBtn");
 const container = document.getElementById("defectListContainer");
 
 amendDefectBtn.addEventListener("click", () => {
@@ -898,9 +899,15 @@ amendDefectBtn.addEventListener("click", () => {
   // Show Archive only when viewing Current, show Move Current only when viewing Archived
   if (viewSelector.value === "current") {
     archiveDefectBtn.classList.remove("hidden");
+    moveNewBtn.classList.remove("hidden");
     moveCurrentBtn.classList.add("hidden");
-  } else {
+  } else if (viewSelector.value === "new") {
+    archiveDefectBtn.classList.remove("hidden");
+    moveNewBtn.classList.add("hidden");
+    moveCurrentBtn.classList.remove("hidden");
+  }else {
     archiveDefectBtn.classList.add("hidden");
+    moveNewBtn.classList.remove("hidden");
     moveCurrentBtn.classList.remove("hidden");
   }
   
@@ -924,6 +931,7 @@ cancelAmendBtn.addEventListener("click", () => {
     archiveDefectBtn.classList.add("hidden");
     moveCurrentBtn.classList.add("hidden");
     cancelAmendBtn.classList.add("hidden");
+    moveNewBtn.classList.add("hidden");
     amendDefectBtn.classList.remove("hidden");
     createDefectBtn.classList.remove("hidden");
     viewSelector.classList.remove("hidden");
@@ -974,7 +982,6 @@ moveCurrentBtn.addEventListener("click", async () => {
       ids: selectedIds 
     })
   });
-
   if (res.ok) {
     showToast("Defects moved to current successfully", "success");
   } else {
@@ -983,6 +990,28 @@ moveCurrentBtn.addEventListener("click", async () => {
   reloadDefectList();
 });
 
+  moveNewBtn.addEventListener("click", async () => {
+  const selectedIds = Array.from(document.querySelectorAll(".row-checkbox:checked")).map(cb => cb.dataset.id.trim());
+  if (selectedIds.length === 0) {
+    showToast("No defects selected to move", "warning");
+    return;
+  }
+
+  const res = await fetch("/api/cdm/move_to_new", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ 
+      viewType: viewSelector.value,
+      ids: selectedIds 
+    })
+  });
+  if (res.ok) {
+    showToast("Defects moved to current successfully", "success");
+  } else {
+    showToast("Failed to move defects", "error");
+  }
+  reloadDefectList();
+});
 
 deleteDefectBtn.addEventListener("click", async () => {
   const selectedIds = Array.from(document.querySelectorAll(".row-checkbox:checked")).map(cb => cb.dataset.id.trim());
