@@ -56,6 +56,12 @@ def CDM_create_dir(Dir):
         os.makedirs(name=Dir, exist_ok=True)
     return
 
+def create_defect_dirs(root_dir):
+    CDM_create_dir(f'{root_dir}\\PACS')
+    CDM_create_dir(f'{root_dir}\\UTD')
+    CDM_create_dir(f'{root_dir}\\OTHERS')
+    return
+
 def write_json_file(file_path, rec):
     try:
         with open(file_path, "w") as f:
@@ -124,7 +130,7 @@ def CDM_create_defect_details(def_det):
             continue
         jira_link = f'https://jira.temenos.com/browse/{defect_id}'
         resource_dir = f'{defect_resources_dir}\\{defect_id}'
-        CDM_create_dir(resource_dir)
+        create_defect_dirs(resource_dir)
         log = f'{resource_dir}\\Log.txt'
         write_file(log, "")
         def_det[defect_id]["resource_dir"] = resource_dir.replace("\\", "//")
