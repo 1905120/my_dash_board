@@ -564,7 +564,14 @@ body.dark-theme .secondary-btn:hover {
   border: 1px solid #333;
   margin-top: 10px;
 }
-#toggleUtpPackAddBtn{
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#toggleUtpPackAddBtn,
+#toggleDeleteModeBtn {
   padding: 13px 36px;
   font-size: 14px;
   font-weight: 600;
@@ -574,11 +581,165 @@ body.dark-theme .secondary-btn:hover {
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  /* box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); */
 }
 
-#toggleUtpPackAddBtn:hover{
+#toggleUtpPackAddBtn:hover,
+#toggleDeleteModeBtn:hover {
   background-color: rgb(91, 88, 88);
+}
+
+/* ===============================
+   Delete Mode Styles
+================================ */
+.delete-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 12px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 18px;
+}
+
+.delete-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-checkbox-item:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.delete-checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #dc2626;
+}
+
+.delete-checkbox-item label {
+  flex: 1;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1e293b;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+}
+
+/* Delete UTP Pack Popup Overlay */
+#DeleteUtpPack {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(0,0,0,0.45), rgba(0,0,0,0.75));
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+#DeleteUtpPack.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+#DeleteUtpPack-popup {
+  background: linear-gradient(180deg, #ffffff, #f8f9fb);
+  width: 500px;
+  padding: 26px 28px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.15);
+  transform: translateY(10px) scale(0.95);
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  opacity: 0;
+}
+
+#DeleteUtpPack.active #DeleteUtpPack-popup {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+#DeleteUtpPack-popup h2 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.delete-popup-subtitle {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+#DeleteUtpPack-popup .buttons button#deleteSelectedBtn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+}
+
+#DeleteUtpPack-popup .buttons button#deleteSelectedBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+#DeleteUtpPack-popup .buttons button#deleteSelectedBtn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+#DeleteUtpPack-popup .buttons button#CancelDeletePopup {
+  background: #e0e0e0;
+  color: #333;
+}
+
+#DeleteUtpPack-popup .buttons button#CancelDeletePopup:hover {
+  background: #d5d5d5;
+}
+
+/* Dark theme for delete popup */
+body.dark-theme #DeleteUtpPack-popup {
+  background: linear-gradient(180deg, #1e293b, #16213e);
+}
+
+body.dark-theme #DeleteUtpPack-popup h2 {
+  color: #eaeaea;
+}
+
+body.dark-theme .delete-popup-subtitle {
+  color: #94a3b8;
+}
+
+body.dark-theme .delete-checkbox-list {
+  background: #0f172a;
+  border-color: #4a5568;
+}
+
+body.dark-theme .delete-checkbox-item {
+  background: #1e293b;
+  border-color: #4a5568;
+}
+
+body.dark-theme .delete-checkbox-item:hover {
+  background: #7f1d1d;
+  border-color: #dc2626;
+}
+
+body.dark-theme .delete-checkbox-item label {
+  color: #e2e8f0;
 }
 
 /* Overlay */

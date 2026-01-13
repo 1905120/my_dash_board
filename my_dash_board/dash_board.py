@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, abort, request
 import os, json
 from common import DEFAULT_OPTIONS, TABLES_DIR, CURRENT_FILE,JIRA_CACHE_PATH, BITBUCKET_CACHE_PATH
-from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, update_available_all_table_for_create_ofs_module, CDM_move_defect_details
+from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, delete_utp_pack_details, update_available_all_table_for_create_ofs_module, CDM_move_defect_details
 import subprocess
 import sys
 import re
@@ -338,6 +338,31 @@ def addUtpPackDetails():
                 "status": "error",
                 "message": str(e)
             }), 400
+
+@app.route('/api/manage-utp/deleteUtpPack', methods=["POST"])
+def deleteUtpPack():
+    try:
+        data = request.get_json()
+        values = data.get("values", [])
+        
+        if not values:
+            return jsonify({
+                "status": "error",
+                "message": "No UTP packs selected for deletion"
+            }), 400
+        
+        deleted_count = delete_utp_pack_details(values)
+        
+        return jsonify({
+            "status": "success",
+            "message": f"Successfully deleted {deleted_count} UTP pack(s)",
+            "deleted_count": deleted_count
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 @app.route('/api/manage-utp/execute', methods=['POST'])
 def execute_utp_operation():
