@@ -258,6 +258,26 @@ def add_utp_pack_details(lable, path):
     return False
 
 
+def delete_utp_pack_details(values_to_delete):
+    """Delete UTP pack entries by their values (paths)"""
+    data = read_file(f'{UTP_PACK_DETAILS_PATH}\\data.json', 'json')
+    exists_utp_pack_details = data["utp_update_options"]
+    
+    # Filter out the entries that match the values to delete
+    updated_utp_pack_details = [
+        utp_pack for utp_pack in exists_utp_pack_details 
+        if utp_pack['value'] not in values_to_delete
+    ]
+    
+    deleted_count = len(exists_utp_pack_details) - len(updated_utp_pack_details)
+    
+    if deleted_count > 0:
+        data["utp_update_options"] = updated_utp_pack_details
+        write_json_file(f'{UTP_PACK_DETAILS_PATH}\\data.json', data)
+    
+    return deleted_count
+
+
 def update_available_all_table_for_create_ofs_module():
     update_aaa_table()
     return

@@ -15,10 +15,17 @@ const cancelDeploymentBtn = document.getElementById('cancelDeploymentBtn');
 const selectedDeploymentDiv = document.getElementById('selectedDeployment');
 const deploymentNameSpan = document.getElementById('deploymentName');
 const changeDeploymentBtn = document.getElementById('changeDeploymentBtn');
+// Delete popup elements
+const toggleDeleteModeBtn = document.getElementById('toggleDeleteModeBtn');
+const deleteUtpPackPopup = document.getElementById('DeleteUtpPack');
+const deleteCheckboxList = document.getElementById('deleteCheckboxList');
+const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+const cancelDeletePopupBtn = document.getElementById('CancelDeletePopup');
 
 // State
 let selectedDeployment = null;
 let deploymentData = null;
+let utpValues = []; // Store UTP values for delete mode
 
 // Loading overlay functions
 function showLoading() {
@@ -66,7 +73,9 @@ async function loadOptions() {
         populateOperations(data.operations);
       }
       if (data.values) {
+        utpValues = data.values; // Store for delete mode
         populateValues(data.values);
+        populateDeleteCheckboxes(data.values);
       }
     } else {
       showToast('Failed to load options', 'error');
@@ -107,6 +116,88 @@ function populateValues(values) {
     option.textContent = val.label;
     valueSelect.appendChild(option);
   });
+}
+
+// Populate delete checkboxes
+function populateDeleteCheckboxes(values) {
+  deleteCheckboxList.innerHTML = '';
+  values.forEach(val => {
+    const item = document.createElement('div');
+    item.className = 'delete-checkbox-item';
+    item.innerHTML = `
+      <input type="checkbox" id="delete-${val.value}" value="${val.value}">
+      <label for="delete-${val.value}">${val.label}</label>
+    `;
+    item.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'INPUT') {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        checkbox.checked = !checkbox.checked;
+      }
+      updateDeleteButtonState();
+    });
+    deleteCheckboxList.appendChild(item);
+  });
+}
+
+// Open delete popup
+function openDeleteUtpPackPopup() {
+  // Reset checkboxes
+  const checkboxes = deleteCheckboxList.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(cb => cb.checked = false);
+  deleteSelectedBtn.disabled = true;
+  
+  deleteUtpPackPopup.classList.add('active');
+}
+
+// Close delete popup
+function closeDeleteUtpPackPopup() {
+  deleteUtpPackPopup.classList.remove('active');
+}
+
+// Update delete button state
+function updateDeleteButtonState() {
+  const checkboxes = deleteCheckboxList.querySelectorAll('input[type="checkbox"]:checked');
+  deleteSelectedBtn.disabled = checkboxes.length === 0;
+}
+
+// Handle delete selected
+async function handleDeleteSelected() {
+  const checkboxes = deleteCheckboxList.querySelectorAll('input[type="checkbox"]:checked');
+  const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+  
+  if (selectedValues.length === 0) {
+    showToast('Please select at least one UTP pack to delete', 'warning');
+    return;
+  }
+  
+  if (!confirm(`Are you sure you want to delete ${selectedValues.length} UTP pack(s)?`)) {
+    return;
+  }
+  
+  closeDeleteUtpPackPopup();
+  showLoading();
+  
+  try {
+    const response = await fetch('/api/manage-utp/deleteUtpPack', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: selectedValues })
+    });
+    
+    const result = await response.json();
+    hideLoading();
+    
+    if (response.ok) {
+      showToast(`Successfully deleted ${selectedValues.length} UTP pack(s)`, 'success');
+      await loadOptions(); // Refresh the list
+    } else {
+      showToast(result.message || 'Failed to delete UTP packs', 'error');
+    }
+  } catch (err) {
+    console.error('Error deleting UTP packs:', err);
+    hideLoading();
+    showToast('Error deleting UTP packs', 'error');
+  }
 }
 
 // Setup event listeners
@@ -341,6 +432,11 @@ function showToast(message, type = 'info') {
   submitUtpPackBtn.addEventListener("click", submitAddUtpPackData);
   utpLabel.addEventListener("change", checkInputs);
   path.addEventListener("change", checkInputs);
+  
+  // Delete popup event listeners
+  toggleDeleteModeBtn.addEventListener("click", openDeleteUtpPackPopup);
+  cancelDeletePopupBtn.addEventListener("click", closeDeleteUtpPackPopup);
+  deleteSelectedBtn.addEventListener("click", handleDeleteSelected);
 
   function checkInputs() {
     if (utpLabel.value.trim() !== "" && path.value.trim() !== "") {

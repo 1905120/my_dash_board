@@ -16,9 +16,10 @@
     
     <div class="page-header">
       <h1>🛠️ Manage UTP</h1>
-      <div>
+      <div class="header-buttons">
         <button id="toggleUtpPackAddBtn">Add Utp Pack</button>
-      <button id="themeToggleBtn" title="Toggle Theme">🌙</button>
+        <button id="toggleDeleteModeBtn">Delete Utp Pack</button>
+        <button id="themeToggleBtn" title="Toggle Theme">🌙</button>
       </div>
     </div>
     
@@ -95,6 +96,19 @@
     <div class="buttons">
       <button id="submitUtpPack">Submit</button>
       <button id="CancelUtpAddPopup">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete UTP Pack Popup -->
+<div id="DeleteUtpPack">
+  <div id="DeleteUtpPack-popup">
+    <h2>🗑️ Delete UTP Pack</h2>
+    <p class="delete-popup-subtitle">Select UTP packs to delete</p>
+    <div id="deleteCheckboxList" class="delete-checkbox-list"></div>
+    <div class="buttons">
+      <button id="deleteSelectedBtn" disabled>Delete Selected</button>
+      <button id="CancelDeletePopup">Cancel</button>
     </div>
   </div>
 </div>
