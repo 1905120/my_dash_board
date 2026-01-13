@@ -9,19 +9,33 @@ from Jira.src.CONTROLLER import process_jira_tasks
 from pathlib import Path
 import time
 from fetch_opengrok import update_aaa_table
+import stat
+
+def force_delete(func, path, exc_info):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 def safe_delete_folder(path, retries=3, delay=0.5):
-
     path = Path(path)
-
     for i in range(retries):
         try:
-            shutil.rmtree(path)
+            shutil.rmtree(path, onerror=force_delete)
             return True
         except PermissionError:
             time.sleep(delay)
     raise Exception("unable to delete")
-    return
+
+def delete_dir(option, dir):
+    try:
+        if not os.path.exists(dir):
+            return True
+        if option == "all":
+            safe_delete_folder(dir)
+        else:
+            os.remove(dir)
+    except Exception as e:
+        return False
+    return True
 
 def delete_file(option, path):
     if os.path.exists(path):
@@ -96,18 +110,6 @@ def write_file(file_path, rec):
     except Exception as e:
         print(f"Err on write : file : {file_path}")
     return 
-
-def delete_dir(option, dir):
-    try:
-        if not os.path.exists(dir):
-            return True
-        if option == "all":
-            shutil.rmtree(dir)
-        else:
-            os.remove(dir)
-    except Exception as e:
-        return False
-    return True
 
 def CDM_create_defect_details(def_det):
     CDM_BUSSINESS_PROCESS_RESULT["err"] = ""
