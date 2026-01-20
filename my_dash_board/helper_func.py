@@ -1,4 +1,4 @@
-from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH, CREATE_OFS_TABLES_PATH, CDM_NEW_DEFECTS_DIR
+from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH, CREATE_OFS_TABLES_PATH, CDM_NEW_DEFECTS_DIR, MAIN_DASH_BOARD_PATH
 import os
 import json
 import shutil
@@ -10,6 +10,9 @@ from pathlib import Path
 import time
 from fetch_opengrok import update_aaa_table
 import stat
+import requests
+from datetime import datetime
+import certifi
 
 def force_delete(func, path, exc_info):
     os.chmod(path, stat.S_IWRITE)
@@ -287,3 +290,58 @@ def delete_utp_pack_details(values_to_delete):
 def update_available_all_table_for_create_ofs_module():
     update_aaa_table()
     return
+
+def get_quotes_from_api():
+    try:
+        response = requests.get('https://zenquotes.io/api/random', verify=False)
+        response.raise_for_status()
+        data = response.json()
+        text = data[0]['q']    # Quote text
+        author = data[0]['a']   # Author
+    except Exception as e:
+        print(str(e))
+        text = "It's okay take a deep breath"
+    return text
+
+def has_hour_passed(target_hour: int, date_str: str) -> bool:
+    try:
+        target_date = datetime.strptime(date_str, "%Y%m%d")
+        now = datetime.now()
+        if now.date() != target_date.date():
+            return False
+        return now.hour > target_hour
+    except ValueError:
+        return False
+    
+def get_daily_quotes():
+
+    daily_qoute = ""
+    day_count = 0
+    reset = False
+    CDM_create_dir(MAIN_DASH_BOARD_PATH)
+    rec = read_file(f'{MAIN_DASH_BOARD_PATH}\\data.json', 'json')
+    now = datetime.now()
+    if rec:
+        if rec["today_reset"]:
+            reset = has_hour_passed(now.hour, rec["reset_time"])
+        elif not rec["today_reset"]:
+            reset = True
+    else:
+        reset = True
+
+    if reset:
+        
+        daily_qoute = ""
+        day_count += 1
+        rec = {
+                "day_count" : day_count,
+                "daily_qoute" : get_quotes_from_api(),
+                "today_reset" : True,
+                "reset_time" : now.strftime("%Y%m%d")
+              }
+        write_json_file(f'{MAIN_DASH_BOARD_PATH}\\data.json', rec)
+
+    day_count = rec["day_count"]
+    daily_qoute = rec["daily_qoute"]
+
+    return daily_qoute, day_count
