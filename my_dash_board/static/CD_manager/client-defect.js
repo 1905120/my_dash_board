@@ -512,7 +512,7 @@ function setupEditHandlers(detailCell, defectId, defects) {
 
       if (key === "Status") {
         const select = document.createElement("select");
-        ["new","analysis","coding","code review","testing","regression","secondary","rejected"].forEach(opt => {
+        ["new","analysis","coding","code review","testing","regression","secondary","rejected", "completed"].forEach(opt => {
           const option = document.createElement("option");
           option.value = opt;
           option.textContent = opt;

@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, abort, request
 import os, json
 from common import DEFAULT_OPTIONS, TABLES_DIR, CURRENT_FILE,JIRA_CACHE_PATH, BITBUCKET_CACHE_PATH
-from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, delete_utp_pack_details, update_available_all_table_for_create_ofs_module, CDM_move_defect_details
+from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, delete_utp_pack_details, update_available_all_table_for_create_ofs_module, CDM_move_defect_details, get_daily_quotes
 import subprocess
 import sys
 import re
@@ -19,6 +19,14 @@ def load_json(rel_path):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/my_dashboard/api1/getTodayQuote', methods=["GET"])
+def getTodayQuote():
+    try:
+        daily_qoute, day_count = get_daily_quotes()
+        return jsonify({"status": "authorized", "message": daily_qoute, "dailyCount" : day_count}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e), "dailyCount" : 0}), 500
 
 @app.route('/online-jira')
 def login_page():

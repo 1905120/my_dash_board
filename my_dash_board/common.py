@@ -13,6 +13,7 @@ JIRA_CACHE_PATH = f'{CURRENT_FILE}\\Jira\\Task-Details'
 BITBUCKET_CACHE_PATH = f'{CURRENT_FILE}\\tool_bitbucket_retail\\BitBucket\\Bitbucket\\Run_Details'
 UTP_PACK_DETAILS_PATH = f'{CURRENT_FILE}\\utp_utility_data'
 CREATE_OFS_TABLES_PATH = f'{CURRENT_FILE}\\tables'
+MAIN_DASH_BOARD_PATH = f'{CURRENT_FILE}\\my_dash_board_storage'
 
 CDM_BUSSINESS_PROCESS_RESULT = {
     "status":"",
