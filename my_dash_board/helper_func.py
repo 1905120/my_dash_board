@@ -314,27 +314,13 @@ def validate_daily_quotes_reset(date: str) -> bool:
         return False
     
 def get_daily_quotes():
-
-    daily_qoute = ""
-    day_count = 0
-    daily_quotes_data_path = f'{MAIN_DASH_BOARD_PATH}\\data.json'
-
+    daily_quotes_data_path  = f'{MAIN_DASH_BOARD_PATH}\\data.json'
+    rec                     = read_file(daily_quotes_data_path, 'json')
+    day_count               = 0
     CDM_create_dir(MAIN_DASH_BOARD_PATH)
-    rec = read_file(daily_quotes_data_path, 'json')
-
-    reset = validate_daily_quotes_reset(rec)
-
-    if reset:
-        daily_qoute = ""
-        day_count += 1
-        rec = {
-                "day_count"   : day_count,
-                "daily_qoute" : get_quotes_from_api(),
-                "reset_time"  : datetime.now().strftime("%Y%m%d")
-              }
+    if rec:
+        day_count = rec.get("day_count", 0)
+    if validate_daily_quotes_reset(rec): #reset
+        rec = {"day_count"   : day_count + 1, "daily_qoute" : get_quotes_from_api(), "reset_time"  : datetime.now().strftime("%Y%m%d")}
         write_json_file(daily_quotes_data_path, rec)
-
-    day_count = rec["day_count"]
-    daily_qoute = rec["daily_qoute"]
-
-    return daily_qoute, day_count
+    return rec["daily_qoute"], rec["day_count"]
