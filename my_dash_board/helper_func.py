@@ -303,13 +303,13 @@ def get_quotes_from_api():
         text = "It's okay take a deep breath"
     return text
 
-def has_hour_passed(target_hour: int, date_str: str) -> bool:
+def validate_daily_quotes_reset(date: str) -> bool:
     try:
-        target_date = datetime.strptime(date_str, "%Y%m%d")
-        now = datetime.now()
-        if now.date() != target_date.date():
-            return False
-        return now.hour > target_hour
+        if not date:
+            return True
+        elif datetime.now().strftime("%Y%m%d") != date["reset_time"]:
+            return True
+        return False
     except ValueError:
         return False
     
@@ -317,29 +317,22 @@ def get_daily_quotes():
 
     daily_qoute = ""
     day_count = 0
-    reset = False
+    daily_quotes_data_path = f'{MAIN_DASH_BOARD_PATH}\\data.json'
+
     CDM_create_dir(MAIN_DASH_BOARD_PATH)
-    rec = read_file(f'{MAIN_DASH_BOARD_PATH}\\data.json', 'json')
-    now = datetime.now()
-    if rec:
-        if rec["today_reset"]:
-            reset = has_hour_passed(now.hour, rec["reset_time"])
-        elif not rec["today_reset"]:
-            reset = True
-    else:
-        reset = True
+    rec = read_file(daily_quotes_data_path, 'json')
+
+    reset = validate_daily_quotes_reset(rec)
 
     if reset:
-        
         daily_qoute = ""
         day_count += 1
         rec = {
-                "day_count" : day_count,
+                "day_count"   : day_count,
                 "daily_qoute" : get_quotes_from_api(),
-                "today_reset" : True,
-                "reset_time" : now.strftime("%Y%m%d")
+                "reset_time"  : datetime.now().strftime("%Y%m%d")
               }
-        write_json_file(f'{MAIN_DASH_BOARD_PATH}\\data.json', rec)
+        write_json_file(daily_quotes_data_path, rec)
 
     day_count = rec["day_count"]
     daily_qoute = rec["daily_qoute"]

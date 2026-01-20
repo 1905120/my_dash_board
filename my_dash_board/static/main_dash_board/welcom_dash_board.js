@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", async function () {
   const hero_quote = document.querySelector(".hero-quote");
-  const day_count = document.querySelector(".hero-subtitle")
+  const day_count = document.querySelector(".hero-title")
   try {
     const response = await fetch('/my_dashboard/api1/getTodayQuote');
     if (response.ok) {
