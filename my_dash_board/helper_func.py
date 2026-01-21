@@ -303,14 +303,14 @@ def get_quotes_from_api():
         text = "It's okay take a deep breath"
     return text
 
-def validate_daily_quotes_reset(date: str) -> bool:
+def validate_daily_quotes_reset(data: str) -> bool:
     try:
-        if not date:
+        if not data or datetime.now().strftime("%Y%m%d") != data["reset_time"]:
             return True
-        elif datetime.now().strftime("%Y%m%d") != date["reset_time"]:
-            return True
-        return False
-    except ValueError:
+        else:
+            return False
+    except Exception as e:
+        print(str(e))
         return False
     
 def get_daily_quotes():
