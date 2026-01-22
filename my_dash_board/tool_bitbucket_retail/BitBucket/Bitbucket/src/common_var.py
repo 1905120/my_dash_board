@@ -30,3 +30,6 @@ retail_specific                 = True
 t24_product_scripts_repo        = "CITADEL.RETAIL, MODEL.CRLEMS.TBC ,MODEL.DDA.RET.TBC ,MODEL.GEN.BES, MODEL.GEN.CES, MODEL.GEN.RES, MODEL.LendingMS, MODEL.TEP, SEAT.Islamic, SEAT.Retail ,TE.MBSIT.RETAIL, UXP.Retail"
 t24_product_core_repo           = "AA, AB, AD, AF, AL, AR, AS, AO, BN, AAPRIC, AASUBS, ASFLFI, CRLEMS, CONLIB, CUSPLN, ENTPRI, ENTFEE, EV, FC, FL, GMBBAA, GMBBAD, GMBBAL, GMBBAR, GMBBFL, GMCBAL, GMCBAR, GMCBFL, GMRBAL, GMRBFL, GMRBAD, GMRBAR, ID, IS, LENDMS, LNSECU, LNTRAD, LOYPLN, LR, MCYAAR, NA, OA, OQ, PR, PROMOS, PRDPKG, RTACMS, RTADMS, RV, SG, AG, RW, BX, AX, AZ, CL, CR, MG, RS, SA, SU, TT, T24.RETPB, XP, BCESCONFIG, IESCONFIG, RESCONFIG, OB_RET"
 retail_proj_repo_path           = os.path.dirname(__file__) + '\\Data\\' + 'data.json'
+credential_validation           = True
+bitbucket_url                   = 'https://bitbucket.temenos.com/'
+jira_url                        = 'https://jira.temenos.com/'

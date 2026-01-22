@@ -2,6 +2,9 @@
 import xml.etree.ElementTree as ET
 import os
 import colorful
+from common_var import credential_validation, jira_url, bitbucket_url
+import requests
+from requests.auth import HTTPBasicAuth
 
 def remove_white_space_fb(data):
     data = data.rstrip()
@@ -48,6 +51,69 @@ def create_new_configurations_file():
             print(e, '\n')
             exit()
         return
+
+def validate_credentials(username, password):
+
+    url = f"{bitbucket_url.rstrip('/')}/rest/api/1.0/users/{username}"
+
+    try:
+        response = requests.get(
+            url,
+            auth=HTTPBasicAuth(username, password),
+            timeout=10
+        )
+
+        return True, None
+
+    except Exception as e:
+        return False, str(e)
+
+
+def create_new_configurations_file_broswer_version(u_name, password):
+        try:
+            print(colorful.yellow('saving Bitbucket login credentials >\n'))
+            root = ET.Element('configurations')
+
+            UserName = ET.SubElement(root, 'UserName')
+            UserName.text = ''
+            tmp = u_name
+            if tmp:
+                UserName.text = remove_white_space_fb(tmp)
+            
+            Password = ET.SubElement(root, 'Password')
+            Password.text = ''
+            tmp = password
+            if tmp:
+                Password.text = remove_white_space_fb(tmp)
+            #print(UserName.text, Password.text)
+            if not(UserName.text) or not(Password.text):
+                print(colorful.red('\nErr @__CONFIG : Invalid Credentials !!!\n'))
+                raise Exception('Usaer name and password both are mandatory!')
+            else:
+                credentials_check, err_msg = validate_credentials(UserName.text, Password.text)
+                if err_msg and credential_validation:
+                    return False, err_msg
+
+            AddReviewers = ET.SubElement(root, 'AddReviewers')
+            AddReviewers.text = 'YES'
+            AddCodeChanges = ET.SubElement(root, 'AddCodeChanges')
+            AddCodeChanges.text = 'YES'
+            AddCodeChanges = ET.SubElement(root, 'AddParentTaskDetails')
+            AddCodeChanges.text = 'YES'
+
+            tree = ET.ElementTree(root)
+            os.system('cls')
+
+            save_loc = os.getcwd()
+            os.chdir(os.path.dirname(__file__) + '\\Data')
+            tree.write('Configurations.xml')
+            os.chdir(save_loc)
+            return True, None
+        except Exception as e:
+            print(colorful.red('\nErr @__CONFIG :'),'Problem occured while creating the file !!!')
+            print(e, '\n')
+            # exit()
+        return False, str(e)
 
 def read_credentials_file():
 

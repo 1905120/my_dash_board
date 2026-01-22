@@ -20,8 +20,8 @@ class bitbucket:
     
     def __init__(self):
         
-        self.bitbucket_url       = 'https://bitbucket.temenos.com/'
-        self.jira_url            = 'https://jira.temenos.com/'
+        self.bitbucket_url       = common_var.bitbucket_url
+        self.jira_url            = common_var.jira_url
         self.dev_branch          = 'refs/heads/develop'
         self.username            = ''
         self.password            = ''
@@ -416,3 +416,7 @@ class bitbucket:
             output_csv.write_output_file(self.file_ptr, self.update_tag_details, self.add_repo, self.add_parent_details, self.update_pr_details, self.mutiple_tag_process, self.add_code_changes, change_set_count, code_change, commit_id, task_id, parent_task_ref, parent_task_type, commit_msg, author, reviewers, pr_merge_time, run_idx, repo)
         
         return
+def define_api_conn(jira_url, bitbucket_url, username, password):
+    jira               = Jira(jira_url, username, password)
+    bitbucket          = Bitbucket(bitbucket_url, username, password)
+    return

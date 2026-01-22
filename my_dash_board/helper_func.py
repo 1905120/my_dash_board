@@ -1,10 +1,11 @@
-from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH, CREATE_OFS_TABLES_PATH, CDM_NEW_DEFECTS_DIR, MAIN_DASH_BOARD_PATH
+from common import CDM_ARCHIVED_DEFECTS_DIR, CDM_CURRENT_DEFECTS_DIR, CDM_BUSSINESS_PROCESS_RESULT, CDM_RESOURCES, UTP_PACK_DETAILS_PATH, CREATE_OFS_TABLES_PATH, CDM_NEW_DEFECTS_DIR, MAIN_DASH_BOARD_PATH, BITBUCKET_CREDENTIALS_PATH
 import os
 import json
 import shutil
 from UTP_utility import UTPConversion  # TODO: Add UTP_utility to path or move to my_dash_board
 import logging
 from tool_bitbucket_retail.BitBucket.Bitbucket.src.Main import Process_Bitbucket_Details
+from tool_bitbucket_retail.BitBucket.Bitbucket.src.__CONFIG__ import create_new_configurations_file_broswer_version
 from Jira.src.CONTROLLER import process_jira_tasks
 from pathlib import Path
 import time
@@ -324,3 +325,12 @@ def get_daily_quotes():
         rec = {"day_count"   : day_count + 1, "daily_qoute" : get_quotes_from_api(), "reset_time"  : datetime.now().strftime("%Y%m%d")}
         write_json_file(daily_quotes_data_path, rec)
     return rec["daily_qoute"], rec["day_count"]
+
+
+def update_bitbucket_login_credentials(u_name, password):
+    try:
+        return create_new_configurations_file_broswer_version(u_name, password)
+    except Exception as e:
+        return False, str(e)
+    
+    
