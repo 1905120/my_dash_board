@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, abort, request
 import os, json
 from common import DEFAULT_OPTIONS, TABLES_DIR, CURRENT_FILE,JIRA_CACHE_PATH, BITBUCKET_CACHE_PATH
-from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, delete_utp_pack_details, update_available_all_table_for_create_ofs_module, CDM_move_defect_details, get_daily_quotes
+from helper_func import CDM_get_all_defect_details, CDM_create_defect_details, CDM_delete_defect_details, CDM_update_defect_details, read_file, get_json_obj, get_available_run_tag, get_jira_extracted_data, clear_cache_files_for_jiro_prod_lookup, add_utp_pack_details, delete_utp_pack_details, update_available_all_table_for_create_ofs_module, CDM_move_defect_details, get_daily_quotes, update_bitbucket_login_credentials
 import subprocess
 import sys
 import re
@@ -144,13 +144,11 @@ def save_bitbucket_credentials():
         if not username or not password:
             return jsonify({"error": "Username and password are required"}), 400
         
-        # Save credentials to Bitbucket credentials file
-        cred_path = os.path.join(app.root_path, 'tool_bitbucket_retail', 'BitBucket', 'Bitbucket', 'src', 'Data', 'credentials.txt')
-        os.makedirs(os.path.dirname(cred_path), exist_ok=True)
-        with open(cred_path, 'w') as f:
-            f.write(f'{username}\n{password}')
-        
-        return jsonify({"status": "success", "message": "Credentials saved"}), 200
+        result, err = update_bitbucket_login_credentials(username, password)
+        if err:
+            raise Exception(err)
+        else:
+            return jsonify({"status": "success", "message": "Credentials saved"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
