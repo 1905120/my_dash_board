@@ -5,6 +5,7 @@ import colorful
 from common_var import credential_validation, jira_url, bitbucket_url
 import requests
 from requests.auth import HTTPBasicAuth
+import json
 
 def remove_white_space_fb(data):
     data = data.rstrip()
@@ -62,6 +63,14 @@ def validate_credentials(username, password):
             auth=HTTPBasicAuth(username, password),
             timeout=10
         )
+
+        if response.status_code != 200:
+             err_msg = ""
+             err_dets = json.loads(response.text)
+             if 'errors' in err_dets:
+                for err_det in err_dets['errors']:
+                    err_msg += f'{err_det["message"]}\n'
+             raise Exception(err_msg)
 
         return True, None
 
