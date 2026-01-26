@@ -33,3 +33,9 @@ retail_proj_repo_path           = os.path.dirname(__file__) + '\\Data\\' + 'data
 credential_validation           = True
 bitbucket_url                   = 'https://bitbucket.temenos.com/'
 jira_url                        = 'https://jira.temenos.com/'
+return_response                 =   {
+                                        "msg"   : None,
+                                        "error" : None,
+                                        "data"  : None
+                                    }
+server_trace_enabled            = False

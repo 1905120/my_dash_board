@@ -239,8 +239,7 @@ def manage_utp(file_path, Option, deployment_opt):
     return ""
 
 def get_available_run_tag(repo, project, list_of_tags):
-    input_proj ,input_repos, list_of_tags, file_ptr = Process_Bitbucket_Details(project, repo, list_of_tags)
-    return list_of_tags, file_ptr
+    return Process_Bitbucket_Details(project, repo, list_of_tags)
 
 def get_jira_extracted_data(jira_id):
     file_ptr = process_jira_tasks(jira_id)
