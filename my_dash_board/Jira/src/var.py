@@ -32,6 +32,8 @@ reviewers_sep               = ' \\ '
 multi_tasking_trigger_limit = 10
 multi_thread_process        = False
 req_file_types              = ['b', 'tut', 'd', 'json', 'component']
-#req_file_types              = ['b']
-
+#req_file_types             = ['b']
+credential_validation       = True
+bitbucket_url               = 'https://bitbucket.temenos.com/'
+jira_url                    = 'https://jira.temenos.com/'
 

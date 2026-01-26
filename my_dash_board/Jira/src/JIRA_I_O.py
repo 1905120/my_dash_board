@@ -4,7 +4,10 @@ import os
 import re
 import common_func
 import xml.etree.ElementTree as ET
-
+import requests
+from requests.auth import HTTPBasicAuth
+import json
+from var import credential_validation, jira_url
 
 def read_ref_file():
     
@@ -129,6 +132,69 @@ def create_new_configurations_file():
             if not(UserName.text) or not(Password.text):
                 print(colorful.red('\nErr @__CONFIG : Invalid Credentials !!!\n'))
                 exit()
+                
+            tree = ET.ElementTree(root)
+            os.system('cls')
+
+            save_loc = os.getcwd()
+            os.chdir(os.path.dirname(__file__) + '\\Data')
+            tree.write('Configurations.xml')
+            os.chdir(save_loc)
+            
+        except Exception as e:
+            print(colorful.red('\nErr @__CONFIG :'),'Problem occured while creating the file !!!')
+            print(e, '\n')
+            exit()
+        return
+
+def validate_credentials(username, password):
+
+    url = f"{jira_url.rstrip('/')}/rest/api/1.0/users/{username}"
+
+    try:
+        response = requests.get(
+            url,
+            auth=HTTPBasicAuth(username, password),
+            timeout=10
+        )
+
+        if response.status_code != 200:
+             err_msg = ""
+             err_dets = json.loads(response.text)
+             if 'errors' in err_dets:
+                for err_det in err_dets['errors']:
+                    err_msg += f'{err_det["message"]}\n'
+             raise Exception(err_msg)
+
+        return True, None
+
+    except Exception as e:
+        return False, str(e)
+
+def jira_create_new_configurations_file_browser_version(u_name, password):
+        try:
+            print(colorful.yellow('Updating Jira login credentials >\n'))
+            root = ET.Element('configurations')
+
+            UserName = ET.SubElement(root, 'UserName')
+            UserName.text = ''
+            tmp = u_name
+            if tmp:
+                UserName.text = common_func.remove_white_space_fb(tmp)
+
+            Password = ET.SubElement(root, 'Password')
+            Password.text = ''
+            tmp = password
+            if tmp:
+                Password.text = common_func.remove_white_space_fb(tmp)
+            #print(UserName.text, Password.text)
+            if not(UserName.text) or not(Password.text):
+                print(colorful.red('\nErr @__CONFIG : Invalid Credentials !!!\n'))
+                exit()
+            else:
+                credentials_check, err_msg = validate_credentials(UserName.text, Password.text)
+                if err_msg and credential_validation:
+                    return False, err_msg
                 
             tree = ET.ElementTree(root)
             os.system('cls')
