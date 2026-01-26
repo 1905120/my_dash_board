@@ -241,8 +241,10 @@ def get_bitbucket_details():
         
         # TODO: Replace with actual Bitbucket API call
         # For now, return sample list
-        results, file_ptr = get_available_run_tag(repos, projects, [])
-        
+        response = get_available_run_tag(repos, projects, [])
+        if response["error"]:
+            raise Exception(response["msg"])
+        results, file_ptr = response["data"]
         return jsonify({
             "results": results,
             "selected_repos": repos,
@@ -265,8 +267,10 @@ def compare_bitbucket_tags():
             return jsonify({"error": "Both from_tag and to_tag are required"}), 400
         
         range_tag = [from_tag, to_tag]
-        results, file_ptr = get_available_run_tag(repos, projects, [range_tag])
-        
+        response = get_available_run_tag(repos, projects, [range_tag])
+        if response["error"]:
+            raise Exception(response["msg"])
+        results, file_ptr = response["data"]
         # Get file path and name
         file_path = file_ptr.name if hasattr(file_ptr, 'name') else str(file_ptr)
         file_name = os.path.basename(file_path)
