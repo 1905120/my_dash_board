@@ -7,6 +7,7 @@ import logging
 from tool_bitbucket_retail.BitBucket.Bitbucket.src.Main import Process_Bitbucket_Details
 from tool_bitbucket_retail.BitBucket.Bitbucket.src.__CONFIG__ import create_new_configurations_file_broswer_version
 from Jira.src.CONTROLLER import process_jira_tasks
+from Jira.src.JIRA_I_O import jira_create_new_configurations_file_browser_version
 from pathlib import Path
 import time
 from fetch_opengrok import update_aaa_table
@@ -327,9 +328,13 @@ def get_daily_quotes():
     return rec["daily_qoute"], rec["day_count"]
 
 
-def update_bitbucket_login_credentials(u_name, password):
+def update_login_credentials(module, u_name, password):
     try:
-        return create_new_configurations_file_broswer_version(u_name, password)
+        match module:
+            case "Bitbucket":
+                return create_new_configurations_file_broswer_version(u_name, password)
+            case "Jira":
+                return jira_create_new_configurations_file_browser_version(u_name, password)
     except Exception as e:
         return False, str(e)
     
